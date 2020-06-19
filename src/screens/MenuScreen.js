@@ -22,6 +22,7 @@ import { viewBranchCategory } from '../actions'
 import ContentLoader, { Rect } from 'react-content-loader/native'
 const screenHeight = Math.round(Dimensions.get('window').height);
 const screenWidth = Math.round(Dimensions.get('window').width);
+import FastImage from 'react-native-fast-image'
 
 const MyLoader = () => (
     <View style={{ paddingLeft: 20, paddingRight: 20 }}>
@@ -82,8 +83,11 @@ const MenuScreen = ({ navigation, viewBranchCategory, categories }) => {
                             style={{ marginBottom: 3 }}
                             key={index}
                             leftAvatar={
-                                <Image
-                                    source={{ uri: item.image.url }}
+                                <FastImage
+                                    source={{
+                                        uri: item.image.url,
+                                    }}
+                                    resizeMode={FastImage.resizeMode.cover}
                                     style={styles.imgLeftAvatar}
                                 />
                             }

@@ -117,7 +117,7 @@ const AccountScreen = ({ navigation, account, accountDetails }) => {
                                 </View>}
                                 leftAvatar={<View>
                                     <Image
-                                        source={{ uri: "https://myvalue.my/uploads/branch/6F573EEA5B8A52CC5B0767FD521EC302/images/o_1dgk51rig10d2186oc1j12d31m5th.jpg"}}
+                                        source={{ uri: "https://myvalue.my/uploads/branch/6F573EEA5B8A52CC5B0767FD521EC302/images/o_1dgk51rig10d2186oc1j12d31m5th.jpg",  cache: 'only-if-cached'}}
                                         style={styles.centering}
                                     /></View>}
                                 bottomDivider

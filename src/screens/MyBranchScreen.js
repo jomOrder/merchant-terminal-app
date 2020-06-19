@@ -13,6 +13,7 @@ import {
     Alert,
     AsyncStorage
 } from 'react-native';
+import 'react-native-vector-icons/MaterialIcons';
 
 
 import { connect } from 'react-redux';
@@ -141,7 +142,7 @@ const MyBranchScreen = ({ route, navigation, branches, getMerchantBranches }) =>
                                                 <View>
                                                     <CheckBox
                                                         iconRight
-                                                        iconType='material'
+                                                        iconType='fontawosome'
                                                         checkedIcon='done'
                                                         uncheckedIcon='add'
                                                         checkedColor='red'

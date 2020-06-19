@@ -16,6 +16,8 @@ import {
 import { ListItem, Badge } from 'react-native-elements'
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import ContentLoader, { Rect } from 'react-content-loader/native'
+import FastImage from 'react-native-fast-image'
+
 const screenHeight = Math.round(Dimensions.get('window').height);
 const screenWidth = Math.round(Dimensions.get('window').width);
 
@@ -68,8 +70,12 @@ const MenuItemScreen = ({ route, navigation }) => {
                         style={{ marginBottom: 3 }}
                         key={index}
                         leftAvatar={
-                            <Image
-                                source={{ uri: item.photo.url }}
+                            <FastImage
+                                source={{
+                                    uri: item.photo.url,
+                                    
+                                }}
+                                resizeMode={FastImage.resizeMode.cover}
                                 style={styles.imgLeftAvatar}
                             />
                         }
