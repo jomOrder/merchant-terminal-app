@@ -18,6 +18,7 @@ import Icon from 'react-native-vector-icons/FontAwesome5';
 import { Portal, Provider } from 'react-native-paper';
 import Spinner from 'react-native-loading-spinner-overlay';
 import { CommonActions } from '@react-navigation/native'
+import FastImage from 'react-native-fast-image'
 
 
 const LogoutScreen = ({ route, navigation }) => {
@@ -59,13 +60,6 @@ const LogoutScreen = ({ route, navigation }) => {
 
     return (
         <View style={styles.viewContainer}>
-            {/* <View style={{
-                borderBottomColor: "#DDD", borderBottomWidth: 1,
-                backgroundColor: "#E02D2D", height: 140
-            }}>
-
-            </View> */}
-
             <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'flex-start' }}>
                 <View style={{
                     borderBottomColor: "#DDD", borderBottomWidth: 1,
@@ -77,6 +71,8 @@ const LogoutScreen = ({ route, navigation }) => {
                         }}
                         source={{ uri: 'https://img.freepik.com/free-photo/top-view-fast-food-with-copy-space_23-2148273099.jpg?size=626&ext=jpg' }}
                         style={styles.centeringBackground}
+                        resizeMode={FastImage.resizeMode.cover}
+
                     >
                         <View style={{}}>
                             <Text style={styles.headerTitle}>Restoran Anwar Maju - Ara Damansara</Text>
@@ -84,9 +80,11 @@ const LogoutScreen = ({ route, navigation }) => {
                         </View>
                     </ImageBackground>
                     <View style={{flex: 1, justifyContent:'center', alignSelf:'center'}}>
-                        <Image
+                        <FastImage
                             source={{uri: "https://lh3.googleusercontent.com/p/AF1QipNPvjA15VhHjsanfhR1Wqgwh_bZlCqLom1o2RIH=s1280-p-no-v1"}}
                             style={styles.centeringProfile}
+                            resizeMode={FastImage.resizeMode.cover}
+
                         />
                     </View>
                 </View>

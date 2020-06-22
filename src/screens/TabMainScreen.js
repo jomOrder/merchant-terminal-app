@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
-    Dimensions, StyleSheet, View, Image, Text, TouchableOpacity
+    Dimensions, StyleSheet, View, Image, Text, AsyncStorage
 } from 'react-native';
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -39,27 +39,14 @@ const HomeStackScreen = ({ navigation }) => {
                         marginBottom: 10,
                         textAlign: 'center'
                     },
-                    headerStatusBarHeight: 30,
+                    headerStatusBarHeight: 25,
                     headerStyle: {
                         elevation: 0,
                         backgroundColor: '#FFF',
                         shadowOpacity: 0,
                         borderBottomWidth: 0,
                     },
-                    headerRight: () => (
-                        <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('ScanQRCode')}>
-                            <View>
-                                <Icon
-                                    style={{ color: "#E02D2D", marginRight: 20 }}
-                                    size={25}
-                                    name="expand"
-                                    onPress={() => navigation.navigate('ScanQRCode')}
-                                >
-                                </Icon>
-                                <Text style={{ fontSize: 11, fontWeight: 'bold', color: "#E02D2D" }}>Scan</Text>
-                            </View>
-                        </TouchableOpacity>
-                    ),
+                    headerRight: null,
                     headerLeft: null,
                     headerBackTitle: null,
                     headerTintColor: '#fff',
@@ -84,7 +71,7 @@ const OrdersStackScreen = () => {
                         fontWeight: "bold",
                         textAlign: 'center'
                     },
-                    headerStatusBarHeight: 30,
+                    headerStatusBarHeight: 25,
                     headerStyle: {
                         elevation: 0,
                         backgroundColor: '#FFF',
@@ -117,7 +104,7 @@ const MenusStackScreen = () => {
                         fontWeight: "bold",
                         textAlign: 'center'
                     },
-                    headerStatusBarHeight: 30,
+                    headerStatusBarHeight: 25,
                     headerStyle: {
                         elevation: 0,
                         backgroundColor: '#FFF',
@@ -149,7 +136,7 @@ const InboxStackScreen = () => {
                         fontWeight: "bold",
                         textAlign: 'center'
                     },
-                    headerStatusBarHeight: 30,
+                    headerStatusBarHeight: 25,
                     headerStyle: {
                         elevation: 0,
                         backgroundColor: '#FFF',
@@ -181,7 +168,7 @@ const MoreStackScreen = () => {
                         fontWeight: "bold",
                         textAlign: 'center'
                     },
-                    headerStatusBarHeight: 30,
+                    headerStatusBarHeight: 25,
                     headerStyle: {
                         elevation: 0,
                         backgroundColor: '#FFF',
@@ -202,7 +189,16 @@ const MoreStackScreen = () => {
 
 const TabMainScreen = ({ route, navigation }) => {
     const [count, setCount] = useState(0)
+    
+    const handleOrdersCount = async () => {
+        const items = await AsyncStorage.getItem('orders');
+        setCount(items)
+    }
     useEffect(() => {
+        setInterval(() => {
+            handleOrdersCount()
+
+        }, 4000)
         //let orderLength = route.state.routes[0].params.count
         // setCount(orderLength);
         // if(route.name == 'Orders') return () => BackHandler.removeEventListener('hardwareBackPress', () => true)
@@ -221,9 +217,9 @@ const TabMainScreen = ({ route, navigation }) => {
                     iconName = focused ? 'list-alt' : 'list-alt';
                     return (
                         <View style={{}}>
-                            {/* <View style={{ zIndex: 10000, position: 'absolute', bottom: 8, left: 10 }}>
-                                <Badge value="2" textStyle={{ fontSize: 10, fontWeight: "bold" }} badgeStyle={{ backgroundColor: "#E02D2D", width: 4, height: 16 }} />
-                            </View> */}
+                            <View style={{ zIndex: 10000, position: 'absolute', bottom: 8, left: 10 }}>
+                                <Badge value={count} textStyle={{ fontSize: 10, fontWeight: "bold" }} badgeStyle={{ backgroundColor: "#E02D2D", width: 4, height: 16 }} />
+                            </View>
                             <Icon
                                 color={color}
                                 size={17}

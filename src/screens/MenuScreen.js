@@ -61,7 +61,7 @@ const MenuScreen = ({ navigation, viewBranchCategory, categories }) => {
             setLoading(false)
         });
     }, [refreshing]);
-
+    
     const setBranchKey = async () => {
         const branch_key = await AsyncStorage.getItem('branch_key');
         viewBranchCategory(branch_key);
@@ -80,6 +80,11 @@ const MenuScreen = ({ navigation, viewBranchCategory, categories }) => {
                         items: item.items,
                     })} activeOpacity={0.7} key={index}>
                         <ListItem
+                            containerStyle={{
+                                height: 80,
+                                borderBottomColor: "rgba(221,221,221,0.4)",
+                                borderBottomWidth: 1
+                            }}
                             style={{ marginBottom: 3 }}
                             key={index}
                             leftAvatar={
@@ -105,7 +110,6 @@ const MenuScreen = ({ navigation, viewBranchCategory, categories }) => {
                                     >
                                     </Icon>
                                 </View>}
-                            bottomDivider
                         />
                     </TouchableOpacity>
                 </View>

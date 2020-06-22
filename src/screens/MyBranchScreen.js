@@ -1,21 +1,22 @@
 
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
     StyleSheet,
     Dimensions,
     View,
     ScrollView,
     Text,
-    Image,
+    RefreshControl,
     BackHandler,
     TouchableOpacity,
+    TouchableHighlight,
     Alert,
-    AsyncStorage
+    AsyncStorage,
+    SafeAreaView,
+    FlatList
 } from 'react-native';
-import 'react-native-vector-icons/MaterialIcons';
-
-
+import Icon from 'react-native-vector-icons/FontAwesome5';
 import { connect } from 'react-redux';
 import { getMerchantBranches } from '../actions'
 import { CommonActions } from '@react-navigation/native'
@@ -26,17 +27,54 @@ import { showMessage, hideMessage } from "react-native-flash-message";
 import { Modal, Portal, Provider } from 'react-native-paper';
 const screenHeight = Math.round(Dimensions.get('window').height);
 const screenWidth = Math.round(Dimensions.get('window').width);
+import ContentLoader, { Rect } from 'react-content-loader/native'
+const MyLoader = () => (
+    <View style={{ paddingLeft: 20, paddingRight: 20 }}>
+        <ContentLoader width={350}
+            height={90}
+            speed={0.4} backgroundColor={"#E1E9EE"} foregroundColor={"#F2F8FC"} viewBox="0 0 380 80">
+            <Rect height="40" width="40" />
+            <Rect x="50" y="5" rx="2" ry="2" width="250" height="13" />
+            <Rect x="50" y="25" rx="2" ry="2" width="220" height="10" />
+        </ContentLoader>
+    </View>
+);
+
 
 const MyBranchScreen = ({ route, navigation, branches, getMerchantBranches }) => {
     const refRBSheet = useRef();
     const [spinner, setSpinner] = useState(false);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [branchName, setBranchName] = useState("My Branch");
+    const [refreshing, setRefreshing] = useState(false);
     const [branchKey, setBranchKey] = useState(null);
     const [BRANCHES, setBRANCHES] = useState([]);
     const updateFieldChanged = (item, index) => {
+        let name = item.location
+        setBranchName(name);
         setBranchKey(item.branchKey);
         setBRANCHES(BRANCHES.map(item => item.id === index ? { ...item, checked: true } : { ...item, checked: false }))
     }
+
+
+    const wait = (timeout) => {
+        return new Promise(resolve => {
+            setTimeout(resolve, timeout);
+        });
+    }
+
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+
+        setLoading(true);
+        /**
+         * Insert Code here to fetch new Data
+         */
+        wait(1000).then(() => {
+            setRefreshing(false)
+            setLoading(false)
+        });
+    }, [refreshing]);
 
     const verifyBranchKey = () => {
         setSpinner(true);
@@ -52,7 +90,7 @@ const MyBranchScreen = ({ route, navigation, branches, getMerchantBranches }) =>
             navigation.dispatch(
                 CommonActions.reset({
                     index: 0,
-                    routes: [{  name: "Tab" },],
+                    routes: [{ name: "Tab" },],
                 })
             );
         }, 1500);
@@ -67,42 +105,59 @@ const MyBranchScreen = ({ route, navigation, branches, getMerchantBranches }) =>
         setBRANCHES(BRANCHES);
     }
 
+
+    const renderMyBranches = ({ item, index }) => {
+        return (
+            loading ? <MyLoader /> : <View>
+                <TouchableOpacity activeOpacity={0.7} onPress={() => updateFieldChanged(item, index)} key={index}>
+                    <ListItem
+                        containerStyle={{ height: 60 }}
+                        key={index}
+                        leftAvatar={<View
+                            style={styles.listItemCartQuantity}><Text style={styles.listItemCartQuantityText}>{item.locIconn}</Text></View>}
+                        title={<Text style={styles.listItemCartTitle}>{item.name} - {item.location}</Text>}
+                        rightAvatar={
+                            <View>
+                                <CheckBox
+                                    iconRight
+                                    iconType='fontawosome'
+                                    checkedIcon='done'
+                                    uncheckedIcon='add'
+                                    checkedColor='red'
+                                    checked={item.checked}
+                                    onPress={() => updateFieldChanged(item, index)}
+                                />
+                            </View>}
+                        bottomDivider
+                    />
+                </TouchableOpacity>
+            </View>
+        )
+    }
+
     useEffect(() => {
         getMerchantBranches();
+        setTimeout(() => {
+            setLoading(false);
+        }, 600)
         if (branches.length > 0) getAllBranches();
-        // BackHandler.addEventListener('hardwareBackPress', () => {
-        //     navigation.dispatch(
-        //         CommonActions.reset({
-        //             index: 0,
-        //             routes: [{ name: "MyBranch" }],
-        //         })
-        //     );
-        // })
-        // if (route.name == 'MyBranch') return () => BackHandler.removeEventListener('hardwareBackPress', () => true)
-        // setInterval(() => {
-        //     setSpinner(!spinner);
-        // }, 3000);
     }, [branches.length, BRANCHES.length]);
 
     return (
-        <View style={styles.viewContainer}>
-            <View style={{}}>
-                <View style={{
-                    justifyContent: 'center',
-                    width: screenWidth, height: "100%", shadowOffset: { width: 0, height: 0 },
-                    shadowOpacity: 0.2,
-                    elevation: 0,
-                }}>
-                    <View style={{ marginTop: 30 }}>
-                        <ListItem
-                            titleStyle={styles.listItemTitile}
-                            title="Choose Your Branch Location"
-                            subtitle="Rolling your orders for each branch"
-                            subtitleStyle={styles.listItemSub}
-                            rightAvatar={<TouchableOpacity onPress={() => refRBSheet.current.open()}>
-                                <View
-                                    style={{}}
-                                >
+        <SafeAreaView style={styles.viewScreen}>
+
+            <SafeAreaView>
+                <View>
+                    <ListItem
+                        containerStyle={{ height: 100 }}
+                        titleStyle={styles.listItemTitile}
+                        title="Choose Your Branch Location"
+                        subtitle="Rolling your orders for each branch"
+                        subtitleStyle={styles.listItemSub}
+                        rightAvatar={
+
+                            <View style={{ borderRadius: 50, width: 60, height: 60 }}>
+                                <View>
                                     <RBSheet
                                         ref={refRBSheet}
                                         height={300}
@@ -117,65 +172,63 @@ const MyBranchScreen = ({ route, navigation, branches, getMerchantBranches }) =>
                                         <Text>Welcome</Text>
                                     </RBSheet>
                                 </View>
-                                <Text style={styles.listItemAddItem}>HELP</Text>
-                            </TouchableOpacity>}
-                            bottomDivider
-                        />
-                    </View>
-                    <ScrollView
-                        noSpacer={true}
-                        noScroll={false}
-                        showsVerticalScrollIndicator={false}
-                    >
+                                <TouchableHighlight underlayColor={"#f7f7f7"} style={{ borderRadius: 30 }} onPress={() => refRBSheet.current.open()}>
 
-                        <View style={{
-                        }}>
-                            {
-                                BRANCHES.map((item, index) => (
-                                    <TouchableOpacity activeOpacity={0.7} onPress={() => updateFieldChanged(item, index)} key={index}>
-                                        <ListItem
-                                            key={index}
-                                            leftAvatar={<View
-                                                style={styles.listItemCartQuantity}><Text style={styles.listItemCartQuantityText}>{item.locIconn}</Text></View>}
-                                            title={<Text style={styles.listItemCartTitle}>{item.name} - {item.location}</Text>}
-                                            rightAvatar={
-                                                <View>
-                                                    <CheckBox
-                                                        iconRight
-                                                        iconType='fontawosome'
-                                                        checkedIcon='done'
-                                                        uncheckedIcon='add'
-                                                        checkedColor='red'
-                                                        checked={item.checked}
-                                                        onPress={() => updateFieldChanged(item, index)}
-                                                    />
-                                                </View>}
-                                            bottomDivider
+                                    <View style={{ width: 60, height: 60, backgroundColor: 'transparent', justifyContent: 'center', alignItems: 'center', alignSelf: 'center' }} >
+                                        <Icon
+                                            style={{ color: "#000", }}
+                                            size={22}
+                                            name="info-circle"
                                         />
-                                    </TouchableOpacity>
-                                ))
-                            }
-                        </View>
-
-                    </ScrollView>
-                    <View style={{
-                        position: 'absolute',
-                        bottom: 0,
-                        padding: 15,
-                        alignSelf: 'center',
-                        width: screenWidth
-                    }}>
-                        <Button
-                            titleStyle={styles.skipBtn}
-                            disabled={spinner}
-                            buttonStyle={{
-                                height: 50,
-                                marginTop: 20,
-                                backgroundColor: "#E02D2D",
-                            }} title={`Link My Branch`} onPress={() => verifyBranchKey()}></Button>
-                    </View>
+                                    </View>
+                                </TouchableHighlight>
+                            </View>}
+                        bottomDivider
+                    />
                 </View>
+                <View style={{
+                    height: 430,
+                }}>
+                    <FlatList
+                        ListEmptyComponent={<View style={{
+                            alignSelf: 'center',
+                            marginVertical: 200,
+                            height: 100,
+                            lineHeight: 100
+                        }}>
+                            <Text style={{ fontSize: 15, fontWeight: "bold", color: "#858F95" }}>No Branches Avaliable yet</Text>
+                        </View>}
 
+                        showsVerticalScrollIndicator={false}
+                        refreshControl={
+                            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                        }
+                        showsVerticalScrollIndicator={false}
+                        legacyImplementation={false}
+                        data={BRANCHES}
+                        renderItem={item => renderMyBranches(item)}
+                        keyExtractor={item => item.id.toString(2)}
+                    />
+                </View>
+            </SafeAreaView>
+            <View style={{
+                position: 'absolute',
+                bottom: 0,
+                alignSelf: 'center',
+                width: screenWidth
+            }}>
+
+                <Button
+                    disabled={spinner}
+                    titleStyle={styles.linkBtn}
+                    containerStyle={{
+                        borderRadius: 0
+                    }}
+                    buttonStyle={{
+                        height: 50,
+                        borderRadius: 0,
+                        backgroundColor: "#E02D2D",
+                    }} title={`Link to ${branchName}`} onPress={() => verifyBranchKey()} />
 
             </View>
             <Provider>
@@ -189,18 +242,18 @@ const MyBranchScreen = ({ route, navigation, branches, getMerchantBranches }) =>
                     />
                 </Portal>
             </Provider>
-
-        </View>
-
-
+        </SafeAreaView >
     )
 }
 
 
 const styles = StyleSheet.create({
-    viewContainer: {
-        height: screenHeight, flex: 1, justifyContent: 'flex-end',
-
+    viewScreen: {
+        backgroundColor: "#f9f9fc",
+        flex: 1,
+        marginTop: 5,
+        width: screenWidth,
+        height: screenHeight
     },
     chooseIconImg: {
         width: 30,
@@ -237,6 +290,10 @@ const styles = StyleSheet.create({
         marginBottom: 50,
         color: '#FFF',
         fontSize: 14
+    },
+    linkBtn: {
+        fontSize: 17,
+        fontWeight: "700"
     },
 });
 

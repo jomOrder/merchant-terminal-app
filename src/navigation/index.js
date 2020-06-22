@@ -25,13 +25,22 @@ import ReviewOrderScreen from '../screens/ReviewOrderScreen';
 const Stack = createStackNavigator();
 const Navigation = ({ navigation }) => {
     const [token, setToken] = useState(null);
+    const [branch, setBranch] = useState(null);
     const [loading, setLoading] = useState(true);
 
     const checkToken = async () => {
         const token = await AsyncStorage.getItem('token')
         setToken(token);
     }
+
+    const handleMyBranch = async () => {
+        const branch_key = await AsyncStorage.getItem('branch_key');
+        setBranch(branch_key);
+
+    }
+
     const handleNetworkIssue = () => {
+        console.log("Yes")
         NetInfo.fetch().then(({ isConnected, type }) => {
             if (isConnected) setTimeout(() => {
                 setLoading(false)
@@ -47,15 +56,15 @@ const Navigation = ({ navigation }) => {
     }
 
     useEffect(() => {
-        checkToken();
         handleNetworkIssue();
-
+        handleMyBranch();
+        checkToken();
     }, []);
     return (
 
         loading ? <SplashScreen /> :
-            <Stack.Navigator initialRouteName={token ? "Tab" : "Walkthrough"}>
-
+            <Stack.Navigator initialRouteName={token && branch ? "Tab" : !token ? "Walkthrough" : 'MyBranch'}>
+                <Stack.Screen options={{ headerShown: false }} name="Splash" component={SplashScreen} />
                 <Stack.Screen options={{ headerShown: false }} name="Walkthrough" component={WalkthroughScreen} />
                 <Stack.Screen options={{ headerShown: false }} name="Tab" component={TabMainScreen} />
                 <Stack.Screen options={{ headerShown: false }} name="auth" component={LoginScreen} />
@@ -69,7 +78,7 @@ const Navigation = ({ navigation }) => {
                         fontWeight: "bold",
                         textAlign: 'center'
                     },
-                    headerStatusBarHeight: 30,
+                    headerStatusBarHeight: 25,
                     headerStyle: {
                         elevation: 0,
                         backgroundColor: '#FFF',
@@ -79,16 +88,16 @@ const Navigation = ({ navigation }) => {
                     headerRight: null,
                     headerLeft: () => (
 
-                        <View style={{}}>
-                            <TouchableNativeFeedback activeOpacity={0.7} onPress={() => {
-                                navigation.navigate('Tab', { screen: 'Menus' });
-                            }} >
-                                <Icon
-                                    style={{ color: "#858F95", marginLeft: 25 }}
-                                    size={19}
-                                    name="arrow-left"
-                                />
-                            </TouchableNativeFeedback >
+                        <View style={{ borderRadius: 50, width: 60, height: 60 }}>
+                            <TouchableHighlight underlayColor={"#DDD"} style={{ borderRadius: 30 }} onPress={() => navigation.navigate('Tab', { screen: "Menus" })}>
+                                <View style={{ width: 60, height: 60, backgroundColor: 'transparent', justifyContent: 'center', alignItems: 'center', alignSelf: 'center' }} >
+                                    <Icon
+                                        style={{ color: "#858F95", }}
+                                        size={19}
+                                        name="arrow-left"
+                                    />
+                                </View>
+                            </TouchableHighlight>
                         </View>
 
                     ),
@@ -104,7 +113,7 @@ const Navigation = ({ navigation }) => {
                         fontWeight: "bold",
                         textAlign: 'center'
                     },
-                    headerStatusBarHeight: 30,
+                    headerStatusBarHeight: 25,
                     headerStyle: {
                         elevation: 0,
                         backgroundColor: '#FFF',
@@ -139,7 +148,7 @@ const Navigation = ({ navigation }) => {
                         fontWeight: "bold",
                         textAlign: 'center'
                     },
-                    headerStatusBarHeight: 30,
+                    headerStatusBarHeight: 25,
                     headerStyle: {
                         elevation: 0,
                         backgroundColor: '#FFF',
@@ -149,10 +158,10 @@ const Navigation = ({ navigation }) => {
                     headerRight: null,
                     headerLeft: () => (
                         <View style={{ borderRadius: 50, width: 60, height: 60 }}>
-                            <TouchableHighlight underlayColor={"#DDD"} style={{  borderRadius: 30}} onPress={() => navigation.navigate('Tab')}>
+                            <TouchableHighlight underlayColor={"#DDD"} style={{ borderRadius: 30 }} onPress={() => navigation.navigate('Tab')}>
                                 <View style={{ width: 60, height: 60, backgroundColor: 'transparent', justifyContent: 'center', alignItems: 'center', alignSelf: 'center' }} >
                                     <Icon
-                                        style={{ color: "#858F95",}}
+                                        style={{ color: "#858F95", }}
                                         size={19}
                                         name="arrow-left"
                                     />
@@ -174,7 +183,7 @@ const Navigation = ({ navigation }) => {
                         fontWeight: "bold",
                         textAlign: 'center'
                     },
-                    headerStatusBarHeight: 30,
+                    headerStatusBarHeight: 25,
                     headerStyle: {
                         elevation: 0,
                         backgroundColor: '#FFF',
@@ -185,16 +194,16 @@ const Navigation = ({ navigation }) => {
                     headerLeft: () => (
 
                         <View style={{ borderRadius: 50, width: 60, height: 60 }}>
-                        <TouchableHighlight underlayColor={"#DDD"} style={{  borderRadius: 30}} onPress={() => navigation.goBack()}>
-                            <View style={{ width: 60, height: 60, backgroundColor: 'transparent', justifyContent: 'center', alignItems: 'center', alignSelf: 'center' }} >
-                                <Icon
-                                    style={{ color: "#858F95",}}
-                                    size={19}
-                                    name="arrow-left"
-                                />
-                            </View>
-                        </TouchableHighlight>
-                    </View>
+                            <TouchableHighlight underlayColor={"#DDD"} style={{ borderRadius: 30 }} onPress={() => navigation.goBack()}>
+                                <View style={{ width: 60, height: 60, backgroundColor: 'transparent', justifyContent: 'center', alignItems: 'center', alignSelf: 'center' }} >
+                                    <Icon
+                                        style={{ color: "#858F95", }}
+                                        size={19}
+                                        name="arrow-left"
+                                    />
+                                </View>
+                            </TouchableHighlight>
+                        </View>
 
                     ),
                     headerBackTitle: null,
@@ -238,13 +247,12 @@ const Navigation = ({ navigation }) => {
                 <Stack.Screen options={{
                     headerTitle: 'Help Centre',
                     headerTitleStyle: {
-                        fontSize: 20,
                         color: "#000",
-                        fontWeight: "300",
-                        textAlign: 'center',
-                        marginRight: 90
+                        fontSize: 17,
+                        fontWeight: "500",
+                        textAlign: 'center'
                     },
-                    headerStatusBarHeight: 40,
+                    headerStatusBarHeight: 25,
                     headerStyle: {
                         elevation: 0,
                         backgroundColor: '#FFF',
@@ -254,18 +262,17 @@ const Navigation = ({ navigation }) => {
                     headerRight: null,
                     headerLeft: () => (
 
-                        <View style={{}}>
-                            <TouchableNativeFeedback activeOpacity={0.7} onPress={() => {
-                                navigation.navigate('Tab', { screen: 'More' });
-                            }} >
-                                <Icon
-                                    style={{ color: "#000", marginLeft: 25 }}
-                                    size={25}
-                                    name="arrow-left"
-                                />
-                            </TouchableNativeFeedback >
+                        <View style={{ borderRadius: 50, width: 60, height: 60, }}>
+                            <TouchableHighlight underlayColor={"#f7f7f7"} style={{ borderRadius: 30, width: 55, height: 55 }} onPress={() => navigation.navigate('Tab', { screen: 'More' })}>
+                                <View style={{ width: 60, height: 60, backgroundColor: 'transparent', justifyContent: 'center', alignItems: 'center', alignSelf: 'center' }} >
+                                    <Icon
+                                        style={{ color: "#858F95", }}
+                                        size={19}
+                                        name="arrow-left"
+                                    />
+                                </View>
+                            </TouchableHighlight>
                         </View>
-
                     ),
                     headerBackTitle: null,
                     headerTintColor: '#fff',
@@ -274,13 +281,12 @@ const Navigation = ({ navigation }) => {
                 <Stack.Screen options={{
                     headerTitle: 'Contact Support',
                     headerTitleStyle: {
-                        fontSize: 20,
                         color: "#000",
-                        fontWeight: "300",
-                        textAlign: 'center',
-                        marginRight: 90
+                        fontSize: 17,
+                        fontWeight: "500",
+                        textAlign: 'center'
                     },
-                    headerStatusBarHeight: 40,
+                    headerStatusBarHeight: 25,
                     headerStyle: {
                         elevation: 0,
                         backgroundColor: '#FFF',
@@ -290,16 +296,16 @@ const Navigation = ({ navigation }) => {
                     headerRight: null,
                     headerLeft: () => (
 
-                        <View style={{}}>
-                            <TouchableNativeFeedback activeOpacity={0.7} onPress={() => {
-                                navigation.navigate('Tab', { screen: 'More' });
-                            }} >
-                                <Icon
-                                    style={{ color: "#000", marginLeft: 25 }}
-                                    size={25}
-                                    name="arrow-left"
-                                />
-                            </TouchableNativeFeedback >
+                        <View style={{ borderRadius: 50, width: 60, height: 60, }}>
+                            <TouchableHighlight underlayColor={"#f7f7f7"} style={{ borderRadius: 30, width: 55, height: 55 }} onPress={() => navigation.navigate('Tab', { screen: 'More' })}>
+                                <View style={{ width: 60, height: 60, backgroundColor: 'transparent', justifyContent: 'center', alignItems: 'center', alignSelf: 'center' }} >
+                                    <Icon
+                                        style={{ color: "#858F95", }}
+                                        size={19}
+                                        name="arrow-left"
+                                    />
+                                </View>
+                            </TouchableHighlight>
                         </View>
 
                     ),
@@ -316,7 +322,7 @@ const Navigation = ({ navigation }) => {
                         textAlign: 'center',
                         marginRight: 90
                     },
-                    headerStatusBarHeight: 40,
+                    headerStatusBarHeight: 25,
                     headerStyle: {
                         elevation: 0,
                         backgroundColor: '#FFF',
@@ -351,7 +357,7 @@ const Navigation = ({ navigation }) => {
                         fontWeight: "bold",
                         textAlign: 'center'
                     },
-                    headerStatusBarHeight: 30,
+                    headerStatusBarHeight: 25,
                     headerTransparent: {
                         backgroundColor: 'transparent',
                         elevation: 0,

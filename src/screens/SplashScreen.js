@@ -4,14 +4,13 @@ import {
     Dimensions,
     View,
     Image,
-    ActivityIndicator
 } from 'react-native';
 const screenHeight = Math.round(Dimensions.get('window').height);
 
-const SplashScreen = () => {
+const SplashScreen = ({ navigation }) => {
     const [loading, setLoading] = useState(false);
+   
     useEffect(() => {
-        
     }, []);
 
     return (

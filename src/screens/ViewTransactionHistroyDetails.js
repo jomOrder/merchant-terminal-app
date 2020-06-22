@@ -17,6 +17,7 @@ const screenWidth = Math.round(Dimensions.get('window').width);
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import { Portal, Provider } from 'react-native-paper';
 import Spinner from 'react-native-loading-spinner-overlay';
+import FastImage from 'react-native-fast-image'
 
 const ViewTransactionHistroyDetails = ({ route, navigation }) => {
     const { items, sub_total, status, total, tax, method, tableNo, transactionID } = route.params;
@@ -71,13 +72,28 @@ const ViewTransactionHistroyDetails = ({ route, navigation }) => {
                             </View>}
                             subtitleStyle={styles.listItemSub}
                             rightAvatar={
-                            <Text style={styles.listItemAddItem}>{status === 1 ? 'Accepted' : 'Rejected'}</Text>
+                                <View>
+                                    {
+                                        status === 2 ? <FastImage
+                                            source={{ uri: "https://img.icons8.com/color/48/000000/cancel--v1.png" }}
+                                            style={styles.centering}
+                                            resizeMode={FastImage.resizeMode.cover}
+
+                                        /> : <FastImage
+                                                source={require('../../assets/icons8-ok-96.png')}
+                                                style={styles.centering}
+                                                resizeMode={FastImage.resizeMode.cover}
+
+                                            />
+                                    }
+
+                                </View>
                             }
                             bottomDivider
                         />
                     </View>
                     <View style={{
-                        height: 230, 
+                        height: 230,
                         marginBottom: 5
                     }}>
                         <FlatList
@@ -167,6 +183,11 @@ const styles = StyleSheet.create({
         color: "#000",
         fontSize: 18,
         fontWeight: "500"
+    },
+    centering: {
+        borderRadius: 50,
+        width: 40,
+        height: 40
     },
     listItemSub: {
         fontSize: 13,

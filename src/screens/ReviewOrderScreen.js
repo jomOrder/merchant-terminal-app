@@ -7,6 +7,9 @@ import Icon from 'react-native-vector-icons/FontAwesome5';
 import Moment from 'react-moment';
 import { CommonActions } from '@react-navigation/native'
 import { Button, ListItem } from 'react-native-elements'
+import NotificationSounds, { playSampleSound } from 'react-native-notification-sounds';
+
+
 const screenHeight = Math.round(Dimensions.get('window').height);
 const screenWidth = Math.round(Dimensions.get('window').width);
 
@@ -36,6 +39,16 @@ const ReviewOrderScreen = ({ route, branch, navigation, orders, getBranchOrders 
         const branch_key = await AsyncStorage.getItem('branch_key');
         getBranchOrders(branch_key);
     }
+    const handleOrderNotification = async () => {
+        let list = orders.length.toString();
+        await AsyncStorage.setItem('orders', list)
+        NotificationSounds.getNotifications().then(soundsList => {
+            // console.warn('SOUNDS', JSON.stringify(soundsList));
+            playSampleSound(soundsList[43]);
+        });
+    }
+
+
     const handleCountDown = () => {
         let count = countDown - 1;
         setCountDown(count);
@@ -94,11 +107,13 @@ const ReviewOrderScreen = ({ route, branch, navigation, orders, getBranchOrders 
     };
 
     useEffect(() => {
+        // if (orders.err == 0) handleOrderNotification()
+
         setBranchKey();
         // navigation.dispatch(CommonActions.setParams({ count: orders.length }));
         setInterval(() => {
             setBranchKey();
-        }, 3000);
+        }, 1000);
         // setTimeout(() => {
         //     if (countDown > 0) handleCountDown();
         // }, 1000)

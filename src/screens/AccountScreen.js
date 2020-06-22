@@ -20,15 +20,33 @@ const screenWidth = Math.round(Dimensions.get('window').width);
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import { Switch } from 'react-native-paper';
 import Modal from 'react-native-modal';
+import FastImage from 'react-native-fast-image'
+import ContentLoader, { Rect, Circle } from 'react-content-loader/native'
+
+const MyLoader = () => (
+    <View style={{ paddingLeft: 20, paddingRight: 20 }}>
+        <ContentLoader width={350}
+            height={70}
+            viewBox="0 0 400 160"
+            speed={0.4} backgroundColor={"#E1E9EE"} foregroundColor={"#F2F8FC"} viewBox="0 0 380 70">
+            <Circle cx="20" cy="30" r="20" />
+            <Rect x="50" y="10" rx="3" ry="4" width="200" height="13" />
+            <Rect x="50" y="35" rx="3" ry="3" width="150" height="10" />
+        </ContentLoader>
+    </View>
+
+);
 
 const AccountScreen = ({ navigation, account, accountDetails }) => {
     const refRBSheet = useRef();
+    const [loading, setLoading] = useState(true);
     const [retailName, setRetailName] = useState(null);
     const [email, setEmail] = useState(null);
     const [feedackTitle, setFeedackTitle] = useState('Enjoying the JomOrder app so far?');
     const [firstBtn, setFirstBtn] = useState('Love it');
     const [secondBtn, setSecondBtn] = useState('Not Really');
     const [isSwitchOn, setIsSwitchOn] = useState(false);
+    const [isAutoPrint, setAutoPrint] = useState(false);
     const [visible, setVisible] = useState(false);
 
     const handleFirstBtnShareFeedback = () => {
@@ -64,7 +82,6 @@ const AccountScreen = ({ navigation, account, accountDetails }) => {
 
     const handleRestaurantStatus = () => {
         if (isSwitchOn) {
-            setIsSwitchOn(false)
             handleRestaurantStatusButtonAlert()
         }
         else {
@@ -72,7 +89,6 @@ const AccountScreen = ({ navigation, account, accountDetails }) => {
 
             /** End Update Func Call for open restaurant */
             setVisible(true)
-            setIsSwitchOn(!isSwitchOn)
         }
     }
 
@@ -85,8 +101,10 @@ const AccountScreen = ({ navigation, account, accountDetails }) => {
         if (account.length > 0) {
             setRetailName(account[0].merchant.retail_name)
             setEmail(account[0].email)
-
         }
+        setTimeout(() => {
+            setLoading(false)
+        }, 600)
         //BackHandler.addEventListener('hardwareBackPress', handlegoBackBtn)
         // return () =>
         //     BackHandler.removeEventListener('hardwareBackPress', () => true)
@@ -108,7 +126,7 @@ const AccountScreen = ({ navigation, account, accountDetails }) => {
                         showsVerticalScrollIndicator={false}
                     >
                         <View style={styles.itemContainer}>
-                            <ListItem
+                            {loading ? <MyLoader /> : <ListItem
                                 titleStyle={styles.listItemTitile}
                                 title={retailName}
                                 subtitle={<View style={{ flexDirection: 'column' }}>
@@ -116,12 +134,14 @@ const AccountScreen = ({ navigation, account, accountDetails }) => {
                                     <Text style={styles.listItemSubtitleProfile}>{email}</Text>
                                 </View>}
                                 leftAvatar={<View>
-                                    <Image
-                                        source={{ uri: "https://myvalue.my/uploads/branch/6F573EEA5B8A52CC5B0767FD521EC302/images/o_1dgk51rig10d2186oc1j12d31m5th.jpg",  cache: 'only-if-cached'}}
+                                    <FastImage
+                                        source={{ uri: "https://myvalue.my/uploads/branch/6F573EEA5B8A52CC5B0767FD521EC302/images/o_1dgk51rig10d2186oc1j12d31m5th.jpg" }}
                                         style={styles.centering}
+                                        resizeMode={FastImage.resizeMode.cover}
+
                                     /></View>}
                                 bottomDivider
-                            />
+                            />}
                             <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
                                 <RBSheet
                                     ref={refRBSheet}
@@ -231,15 +251,22 @@ const AccountScreen = ({ navigation, account, accountDetails }) => {
                             </View>
                             <View style={[styles.itemContainer, styles.paymentMethodChild]}>
                                 <ListItem
-                                    title="Business Hours"
-                                    titleStyle={styles.paymentMethodTitle}
-                                    subtitle="Set opening hours and future closing hours"
-                                    subtitleStyle={{ paddingLeft: 8, fontSize: 11 }}
-                                    rightAvatar={<Icon
-                                        style={{ color: "#d0d0d0", marginLeft: 20 }}
-                                        size={15}
-                                        name="chevron-right"
-                                    />}
+                                    titleStyle={styles.listItemTitileStatus}
+                                    title={"Printing auto receipt"}
+                                    subtitle={"Toggle off to pause auto receipt"}
+                                    subtitleStyle={styles.listItemSub}
+                                    rightAvatar={<TouchableOpacity onPress={() => { }}>
+                                        <View
+                                            style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', alignItems: "center" }}
+                                        >
+                                            <Switch
+                                                color={"#E02D2D"}
+                                                value={isAutoPrint}
+                                                onValueChange={() => setAutoPrint(!isAutoPrint)}
+                                            />
+                                        </View>
+
+                                    </TouchableOpacity>}
                                     bottomDivider
                                 />
                                 <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('BankAccount')}>
@@ -286,8 +313,6 @@ const AccountScreen = ({ navigation, account, accountDetails }) => {
                 </View>
                 <Modal
                     backdropOpacity={0.8}
-                    animationIn="zoomInDown"
-                    animationOut="zoomOutUp"
                     animationInTiming={600}
                     animationOutTiming={600}
                     backdropTransitionInTiming={600}
@@ -305,11 +330,12 @@ const AccountScreen = ({ navigation, account, accountDetails }) => {
                                 justifyContent: 'center',
                                 alignItems: 'center',
                             }}>
-                                <Image
+                                <FastImage
                                     source={require('../../assets/store-open.png')}
                                     style={styles.storeCentering}
+                                    resizeMode={FastImage.resizeMode.cover}
                                 />
-                                <Text style={{fontSize: 16, fontWeight: "bold", marginBottom: 10}}>Yah, Your restaurant back online </Text>
+                                <Text style={{ fontSize: 16, fontWeight: "bold", marginBottom: 10 }}>Yah, Your restaurant back online </Text>
                             </View>
                             <Button
                                 titleStyle={styles.acceptBtn}
@@ -319,7 +345,12 @@ const AccountScreen = ({ navigation, account, accountDetails }) => {
                                     marginRight: 20,
                                     borderRadius: 5,
                                     backgroundColor: "#D2000D",
-                                }} title="Got it" onPress={() => setVisible(!visible)} />
+                                }} title="Got it" onPress={() => {
+                                    setIsSwitchOn(!isSwitchOn)
+
+                                    setVisible(!visible)
+                                }}
+                            />
                         </View>
                     </View>
                 </Modal>
@@ -402,13 +433,14 @@ const styles = StyleSheet.create({
         color: "#000", fontSize: 16, fontWeight: "700"
     },
     paymentMethodTitle: {
-        paddingLeft: 8, color: "#000", fontSize: 15, fontWeight: "500"
+        color: "#000", fontSize: 15, fontWeight: "500"
     },
     paymentMethodChild: {
         borderBottomColor: "rgba(20,40,80, 0.3)"
     },
     listItemLogOut: {
         marginTop: 20,
+        marginBottom: 10,
         borderBottomColor: "rgba(20,40,80, 0.2)"
     },
     loveit: {

@@ -6,6 +6,8 @@ import {
     ScrollView,
     Text,
     BackHandler,
+    SafeAreaView,
+    FlatList,
     TouchableOpacity,
     Alert,
 } from 'react-native';
@@ -62,6 +64,33 @@ const VisitHelpCentreScreen = ({ route, navigation }) => {
         navigation.goBack();
     }
 
+    const renderIssues = ({ item, index }) => {
+        return (
+            <TouchableOpacity activeOpacity={0.7} onPress={() => updateFieldChanged(item, index)} key={index}>
+                <ListItem
+                    containerStyle={{
+                        height: 50
+                    }}
+                    key={index}
+                    title={<Text style={styles.listItemCartTitle}>{item.name}</Text>}
+                    rightAvatar={
+                        <View>
+                            <CheckBox
+                                iconRight
+                                iconType='material'
+                                checkedIcon='done'
+                                uncheckedIcon='add'
+                                checkedColor='red'
+                                checked={item.checked}
+                                onPress={() => updateFieldChanged(item, index)}
+                            />
+                        </View>}
+                    bottomDivider
+                />
+            </TouchableOpacity>
+        )
+    }
+
     useEffect(() => {
         // BackHandler.addEventListener('hardwareBackPress', handlegoBackBtn)
         // BackHandler.removeEventListener('hardwareBackPress', handlegoBackBtn)
@@ -69,74 +98,38 @@ const VisitHelpCentreScreen = ({ route, navigation }) => {
     }, []);
 
     return (
-        <View style={styles.viewContainer}>
-            <View>
-                <View style={{
-                    justifyContent: 'flex-start',
-                    width: screenWidth, height: "100%", shadowOffset: { width: 0, height: 0 },
-                    shadowOpacity: 0.2,
-                    elevation: 0,
+        <SafeAreaView style={styles.viewScreen}>
+            <View style={{ backgroundColor: "#E02D2D", height: 200 }}>
+                <View style={{ marginTop: 40 }}>
+                    <Text style={styles.headerTitle}>How can we help you?</Text>
+                    <Text style={styles.headerSubText}>Reporting an issue not require multiple times</Text>
+                </View>
+            </View>
+            <FlatList
+                ListHeaderComponent={
+                    <View>
+                        <ListItem
+                            titleStyle={styles.listItemTitile}
+                            title="Report an issue"
+                            bottomDivider
+                        />
+                    </View>
+                }
+                ListEmptyComponent={<View style={{
+                    alignSelf: 'center',
+                    marginVertical: 200,
+                    height: 100,
+                    lineHeight: 100
                 }}>
+                    <Text style={{ fontSize: 15, fontWeight: "bold", color: "#858F95" }}>No Menus Avaliable yet</Text>
+                </View>}
+                showsVerticalScrollIndicator={false}
+                legacyImplementation={false}
+                data={ISSUES}
+                renderItem={item => renderIssues(item)}
+                keyExtractor={item => item.id.toString(2)}
+                ListFooterComponent={
                     <View style={{
-                        justifyContent: 'flex-start',
-                        backgroundColor: "#E02D2D", height: 200
-                    }}>
-                        <View style={{marginTop: 40}}>
-                            <Text style={styles.headerTitle}>How can we help you?</Text>
-                            <Text style={styles.headerSubText}>Reporting an issue not require multiple times</Text>
-
-                        </View>
-                    </View>
-                    <View style={{
-                        position: 'relative',
-                        bottom: 40,
-                        shadowOffset: { width: 0, height: 0 },
-                        shadowOpacity: 2.40,
-                        elevation: 0.9,
-                        backgroundColor: "#FFF",
-                        marginLeft: 20,
-                        marginRight: 20
-                    }}>
-                        <View>
-                            <ListItem
-                                titleStyle={styles.listItemTitile}
-                                title="Report an issue"
-                                bottomDivider
-                            />
-                        </View>
-                        {
-                            ISSUES.map((item, index) => (
-                                <TouchableOpacity activeOpacity={0.7} onPress={() => updateFieldChanged(item, index)} key={index}>
-                                    <ListItem
-                                        containerStyle={{
-                                            height: 60
-                                        }}
-                                        key={index}
-                                        title={<Text style={styles.listItemCartTitle}>{item.name}</Text>}
-                                        rightAvatar={
-                                            <View>
-                                                <CheckBox
-                                                    iconRight
-                                                    iconType='material'
-                                                    checkedIcon='done'
-                                                    uncheckedIcon='add'
-                                                    checkedColor='red'
-                                                    checked={item.checked}
-                                                    onPress={() => updateFieldChanged(item, index)}
-                                                />
-                                            </View>}
-                                        bottomDivider
-                                    />
-                                </TouchableOpacity>
-                            ))
-                        }
-                    </View>
-
-                    <View style={{
-                        position: 'absolute',
-                        bottom: 0,
-                        padding: 15,
-                        alignSelf: 'center',
                         width: screenWidth
                     }}>
                         <Button
@@ -146,14 +139,12 @@ const VisitHelpCentreScreen = ({ route, navigation }) => {
                                 marginLeft: 5,
                                 marginRight: 5,
                                 height: 50,
-                                marginTop: 20,
+                                marginTop: 10,
                                 backgroundColor: "#E02D2D",
                             }} title={`Submit`} onPress={() => { }}></Button>
                     </View>
-                </View>
-
-
-            </View>
+                }
+            />
             <Provider>
                 <Portal>
                     <Spinner
@@ -166,16 +157,20 @@ const VisitHelpCentreScreen = ({ route, navigation }) => {
                 </Portal>
             </Provider>
 
-        </View>
+        </SafeAreaView>
 
 
     )
 }
 
 const styles = StyleSheet.create({
-    viewContainer: {
-        height: screenHeight, flex: 1, justifyContent: 'flex-end',
-
+    viewScreen: {
+        backgroundColor: "#f9f9fc",
+        flex: 1,
+        marginTop: 5,
+        marginBottom: 5,
+        width: screenWidth,
+        height: screenHeight
     },
     chooseIconImg: {
         width: 30,

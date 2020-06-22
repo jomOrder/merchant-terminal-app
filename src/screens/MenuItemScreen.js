@@ -49,7 +49,6 @@ const MenuItemScreen = ({ route, navigation }) => {
 
     const onRefresh = useCallback(() => {
         setRefreshing(true);
-
         setLoading(true);
         /**
          * Insert Code here to fetch new Data
@@ -65,9 +64,13 @@ const MenuItemScreen = ({ route, navigation }) => {
             loading ? <MyLoader /> : <View>
                 <TouchableOpacity activeOpacity={0.7} key={index}>
                     <ListItem
+                        containerStyle={{
+                            height: 80,
+                            borderBottomColor: "rgba(221,221,221,0.4)",
+                            borderBottomWidth: 1
+                        }}
                         disabled={item.in_store === 0}
                         disabledStyle={{ opacity: 0.5 }}
-                        style={{ marginBottom: 3 }}
                         key={index}
                         leftAvatar={
                             <FastImage
@@ -91,7 +94,6 @@ const MenuItemScreen = ({ route, navigation }) => {
                                 <Text style={styles.itemSubTitle}>Base Price</Text>
                             </View>
                         }
-                        bottomDivider
                     />
                 </TouchableOpacity>
             </View>

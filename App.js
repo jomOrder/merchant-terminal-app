@@ -36,7 +36,7 @@ export default function App() {
           <NavigationContainer>
             <RootRoute />
           </NavigationContainer>
-          <FlashMessage animated={true} icon="auto" floating={true} position="top" />
+          <FlashMessage style={{marginTop: 10}} animated={true} icon="auto" floating={true} position="top" />
         </ThemeProvider>
     </Provider>
   );
