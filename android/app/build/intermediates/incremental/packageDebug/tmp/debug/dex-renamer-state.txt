@@ -1,0 +1,4 @@
+#Mon Jun 22 15:02:12 MYT 2020
+base.0=/Users/omardev/Desktop/jom_order/merchantApp/android/app/build/intermediates/dex/debug/mergeDexDebug/out/classes.dex
+path.0=classes.dex
+renamed.0=classes.dex

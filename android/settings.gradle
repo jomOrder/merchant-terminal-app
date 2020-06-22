@@ -1,4 +1,6 @@
 rootProject.name = 'merchantApp'
+include ':react-native-sunmi-inner-printer'
+project(':react-native-sunmi-inner-printer').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-sunmi-inner-printer/android')
 include ':react-native-notification-sounds'
 project(':react-native-notification-sounds').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-notification-sounds/android')
 include ':react-native-vector-icons'
