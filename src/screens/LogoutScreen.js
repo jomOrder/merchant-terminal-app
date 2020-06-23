@@ -52,7 +52,7 @@ const LogoutScreen = ({ route, navigation }) => {
     }
 
     useEffect(() => {
-        BackHandler.addEventListener('hardwareBackPress', handlegoBackBtn)
+        //BackHandler.addEventListener('hardwareBackPress', handlegoBackBtn)
         // return () =>
         //     BackHandler.removeEventListener('hardwareBackPress', () => true)
     }, []);

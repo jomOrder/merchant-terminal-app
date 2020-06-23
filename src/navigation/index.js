@@ -123,17 +123,18 @@ const Navigation = ({ navigation }) => {
                     headerRight: null,
                     headerLeft: () => (
 
-                        <View style={{}}>
-                            <TouchableNativeFeedback activeOpacity={0.7} onPress={() => {
-                                navigation.navigate('Tab', { screen: 'Orders' });
-                            }} >
-                                <Icon
-                                    style={{ color: "#858F95", marginLeft: 25 }}
-                                    size={19}
-                                    name="arrow-left"
-                                />
-                            </TouchableNativeFeedback >
+                        <View style={{ borderRadius: 50, width: 60, height: 60 }}>
+                            <TouchableHighlight underlayColor={"#DDD"} style={{ borderRadius: 30 }} onPress={() => navigation.navigate('Tab', {screen: "Orders"})}>
+                                <View style={{ width: 60, height: 60, backgroundColor: 'transparent', justifyContent: 'center', alignItems: 'center', alignSelf: 'center' }} >
+                                    <Icon
+                                        style={{ color: "#858F95", }}
+                                        size={19}
+                                        name="arrow-left"
+                                    />
+                                </View>
+                            </TouchableHighlight>
                         </View>
+
 
                     ),
                     headerBackTitle: null,

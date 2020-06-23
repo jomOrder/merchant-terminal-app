@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect, createRef } from 'react';
 import {
     StyleSheet,
@@ -10,7 +8,10 @@ import {
     FlatList,
     AsyncStorage,
     SafeAreaView,
-    TouchableHighlight
+    TouchableHighlight,
+    DeviceEventEmitter,
+    BackHandler
+
 } from 'react-native';
 import { ListItem, Button } from 'react-native-elements'
 const screenHeight = Math.round(Dimensions.get('window').height);
@@ -19,9 +20,10 @@ import Icon from 'react-native-vector-icons/FontAwesome5';
 import { Portal, Provider } from 'react-native-paper';
 import Spinner from 'react-native-loading-spinner-overlay';
 import ActionSheet from "react-native-actions-sheet";
+import SunmiInnerPrinter from 'react-native-sunmi-inner-printer';
 
 import { connect } from 'react-redux';
-import { acceptOrderTransaction, cancelOrderTransaction, updateBranchStatusBalance} from '../actions'
+import { acceptOrderTransaction, cancelOrderTransaction, updateBranchStatusBalance } from '../actions'
 
 const ViewOrderDetailsScreen = ({ route, navigation, accepted, canceled, updateBalance, acceptOrderTransaction, cancelOrderTransaction, updateBranchStatusBalance }) => {
     const { items, total, tax, sub_total, method, tableNo, transactionID } = route.params;
@@ -30,6 +32,7 @@ const ViewOrderDetailsScreen = ({ route, navigation, accepted, canceled, updateB
     const [includeTotal, setIncludeTotal] = useState(null);
     const [moreContent, setMoreContent] = useState(false);
     const [spinner, setSpinner] = useState(false);
+    const [printerStatus, setPrinterStatus] = useState(null)
 
     const confirmCancelOrder = () => actionSheetRef.current?.setModalVisible(true);
 
@@ -60,6 +63,7 @@ const ViewOrderDetailsScreen = ({ route, navigation, accepted, canceled, updateB
     const acceptOrder = async () => {
         const branch_key = await AsyncStorage.getItem('branch_key');
         acceptOrderTransaction(branch_key, transactionID);
+        handlePrintReceipt();
         setSpinner(true);
         setTimeout(() => {
             //updateBranchStatusBalance(branch_key, transactionID);
@@ -69,6 +73,10 @@ const ViewOrderDetailsScreen = ({ route, navigation, accepted, canceled, updateB
     }
 
     const cancelOrder = async () => {
+        const ordersList = await AsyncStorage.getItem('orders');
+        let list = ordersList - 1;
+        let listString = list.toString();
+        await AsyncStorage.setItem('orders', listString)
         actionSheetRef.current?.setModalVisible(false)
         const branch_key = await AsyncStorage.getItem('branch_key');
         setSpinner(true);
@@ -82,9 +90,94 @@ const ViewOrderDetailsScreen = ({ route, navigation, accepted, canceled, updateB
         }, 1000);
     }
 
+    const handlePrintReceipt = async () => {
+        let orderList = [];
+        items.map((el) => {
+          let name = el.quantity + "x " + el.name;
+          let arr = [name, "", ""];
+          orderList.push(arr)
+          let price = "RM" + el.price;
+          let arr2 = ["", "", price];
+          orderList.push(arr2)
+        });
+    
+        let columnAliment = [0, 1, 2];
+        let columnWidth = [24, 1, 8]
+    
+        try {
+          //await SunmiInnerPrinter.setAlignment(1);
+          //await SunmiInnerPrinter.printBitmap(logobase64, 384/*width*/, 380/*height*/);
+          //set aligment: 0-left,1-center,2-right
+          await SunmiInnerPrinter.setAlignment(1);
+          await SunmiInnerPrinter.setFontSize(30);
+          await SunmiInnerPrinter.printOriginalText("Penang Road Restaurant\n");
+          await SunmiInnerPrinter.setAlignment(1);
+          await SunmiInnerPrinter.setFontSize(25);
+          await SunmiInnerPrinter.printOriginalText("Sunway Giza\n");
+          await SunmiInnerPrinter.setFontSize(22);
+          await SunmiInnerPrinter.printOriginalText("_________________________________\n");
+          await SunmiInnerPrinter.setAlignment(0);
+          await SunmiInnerPrinter.printOriginalText(`Date :  17-06-2020\n`);
+          await SunmiInnerPrinter.printOriginalText(`Transaction : ${method}\n`);
+          await SunmiInnerPrinter.printOriginalText(`Time : 7:43 PM\n`);
+          await SunmiInnerPrinter.printOriginalText(`Table : ${tableNo}\n`);
+          await SunmiInnerPrinter.printOriginalText("_________________________________\n");
+          await SunmiInnerPrinter.setFontSize(22);
+          for (var i in orderList) {
+            await SunmiInnerPrinter.printColumnsText(orderList[i], columnWidth, columnAliment);
+          }
+          await SunmiInnerPrinter.setFontSize(22);
+          await SunmiInnerPrinter.printOriginalText("_________________________________\n");
+          await SunmiInnerPrinter.setAlignment(2);
+          await SunmiInnerPrinter.setFontSize(30);
+          await SunmiInnerPrinter.printOriginalText(`\nSubtotal: ${sub_total}\n`);
+          await SunmiInnerPrinter.printOriginalText(`  GST 6%:   ${tax}\n`);
+          await SunmiInnerPrinter.setFontSize(22);
+          await SunmiInnerPrinter.printOriginalText("_________________________________\n");
+          await SunmiInnerPrinter.setFontSize(30);
+          await SunmiInnerPrinter.printOriginalText(`\nGrand Total: RM${total}\n`);
+          await SunmiInnerPrinter.printOriginalText("\n\n\n\n\n");
+    
+        } catch (e) {
+          alert("print error." + e.message);
+        }
+
+    }
+
+    const handleDeviceEmitter = () => {
+
+        try {
+            DeviceEventEmitter.addListener('PrinterStatus', action => {
+                switch (action) {
+                    case SunmiInnerPrinter.Constants.NORMAL_ACTION:
+                        // your code
+                        setPrinterStatus("printer normal")
+                        break;
+                    case SunmiInnerPrinter.Constants.OUT_OF_PAPER_ACTION:
+                        // your code
+                        setPrinterStatus("printer out out page")
+                        break;
+                    case SunmiInnerPrinter.Constants.COVER_OPEN_ACTION:
+                        // your code
+                        setPrinterStatus("printer cover open")
+                        break;
+                    default:
+                        // your code
+                        setPrinterStatus(`Printer Status${action}`)
+                }
+            });
+        } catch (e) {
+            setPrinterStatus(`Pinter Message Error: ${action}`)
+        };
+    }
+
     useEffect(() => {
-        console.log("Canceld: ", canceled)
-    }, [accepted.length, canceled.length, items.length, moreContent]);
+        handleDeviceEmitter();
+        return () => {
+            //BackHandler Remove
+            DeviceEventEmitter.removeAllListeners();
+        }
+    }, [accepted.length, canceled.length, items.length, printerStatus]);
 
     return (
         <SafeAreaView style={styles.viewContainer}>
@@ -223,12 +316,15 @@ const ViewOrderDetailsScreen = ({ route, navigation, accepted, canceled, updateB
                     <Button
                         disabled={spinner}
                         titleStyle={styles.acceptBtn}
+                        containerStyle={{
+                            borderRadius: 0
+                        }}
                         buttonStyle={{
                             height: 50,
                             borderRadius: 0,
                             backgroundColor: "#32a867",
                         }} title="ACCEPT" onPress={() => acceptOrder()} />
-                    
+
                 </View>
                 <Provider>
                     <Portal>
@@ -327,11 +423,6 @@ const styles = StyleSheet.create({
     listItemCartPrice: {
         fontSize: 14,
         fontWeight: "500"
-    },
-    listItemSubTotalText: {
-        color: "#000",
-        fontSize: 16,
-        fontWeight: "700"
     },
     listItemExtraFee: {
         color: "#000",

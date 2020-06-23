@@ -1,15 +1,25 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Dimensions, StyleSheet, FlatList, View, ScrollView, SafeAreaView, Text, TouchableOpacity, AsyncStorage, RefreshControl } from 'react-native'
+import {
+    Dimensions,
+    StyleSheet,
+    FlatList,
+    View,
+    SafeAreaView,
+    Text,
+    TouchableOpacity,
+    AsyncStorage,
+    RefreshControl,
+} from 'react-native'
+
 import Modal from 'react-native-modal';
 import { connect } from 'react-redux';
 import { getBranchOrders } from '../actions'
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import Moment from 'react-moment';
 import { CommonActions } from '@react-navigation/native'
-import { Button, ListItem } from 'react-native-elements'
+import { ListItem } from 'react-native-elements'
 import NotificationSounds, { playSampleSound } from 'react-native-notification-sounds';
-
-
+import SunmiInnerPrinter from 'react-native-sunmi-inner-printer';
 const screenHeight = Math.round(Dimensions.get('window').height);
 const screenWidth = Math.round(Dimensions.get('window').width);
 
@@ -37,6 +47,7 @@ const ReviewOrderScreen = ({ route, branch, navigation, orders, getBranchOrders 
 
     const setBranchKey = async () => {
         const branch_key = await AsyncStorage.getItem('branch_key');
+        handleOrderList()
         getBranchOrders(branch_key);
     }
     const handleOrderNotification = async () => {
@@ -48,6 +59,10 @@ const ReviewOrderScreen = ({ route, branch, navigation, orders, getBranchOrders 
         });
     }
 
+    const handleOrderList = async () => {
+        const ordersList = await AsyncStorage.getItem('orders');
+        if (orders.length > ordersList) handleOrderNotification()
+    }
 
     const handleCountDown = () => {
         let count = countDown - 1;
@@ -107,7 +122,6 @@ const ReviewOrderScreen = ({ route, branch, navigation, orders, getBranchOrders 
     };
 
     useEffect(() => {
-        // if (orders.err == 0) handleOrderNotification()
 
         setBranchKey();
         // navigation.dispatch(CommonActions.setParams({ count: orders.length }));

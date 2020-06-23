@@ -93,7 +93,7 @@ const AccountScreen = ({ navigation, account, accountDetails }) => {
     }
 
     const handlegoBackBtn = () => {
-        navigation.navigate('Tab', { screen: 'Home' });
+        navigation.navigate('Tab')
     }
 
     useEffect(() => {
@@ -106,9 +106,11 @@ const AccountScreen = ({ navigation, account, accountDetails }) => {
             setLoading(false)
         }, 600)
         //BackHandler.addEventListener('hardwareBackPress', handlegoBackBtn)
-        // return () =>
-        //     BackHandler.removeEventListener('hardwareBackPress', () => true)
-    }, [firstBtn, retailName, secondBtn, account.length]);
+        return () => {
+            //BackHandler Remove
+            //BackHandler.removeEventListener('hardwareBackPress', handlegoBackBtn)
+        }
+    }, [handlegoBackBtn, firstBtn, retailName, secondBtn, account.length]);
 
     return (
         <View style={styles.viewContainer}>
