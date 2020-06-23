@@ -62,6 +62,10 @@ const ViewOrderDetailsScreen = ({ route, navigation, accepted, canceled, updateB
 
     const acceptOrder = async () => {
         const branch_key = await AsyncStorage.getItem('branch_key');
+        const ordersList = await AsyncStorage.getItem('orders');
+        let list = ordersList - 1;
+        let listString = list.toString();
+        await AsyncStorage.setItem('orders', listString)
         acceptOrderTransaction(branch_key, transactionID);
         handlePrintReceipt();
         setSpinner(true);
