@@ -2,24 +2,24 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, Image, AsyncStorage, Text, TouchableNativeFeedback, TouchableHighlight, View, BackHandler, Alert } from 'react-native'
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import WalkthroughScreen from '../screens/WalkthroughScreen';
-import LoginScreen from '../screens/LoginScreen';
+import WalkthroughScreen from '../app/WalkthroughScreen';
+import LoginScreen from '../app/LoginScreen';
 import Icon from 'react-native-vector-icons/FontAwesome5';
-import MyBranchScreen from '../screens/MyBranchScreen';
-import TabMainScreen from '../screens/TabMainScreen';
-import SplashScreen from '../screens/SplashScreen';
-import ViewOrderDetailsScreen from '../screens/ViewOrderDetailsScreen';
-import MenuItemScreen from '../screens/MenuItemScreen';
-import ViewTransactionHistroyDetails from '../screens/ViewTransactionHistroyDetails';
+import MyBranchScreen from '../app/MyBranchScreen';
+import TabMainScreen from '../app/TabMainScreen';
+import SplashScreen from '../app/SplashScreen';
+import ViewOrderDetailsScreen from '../app/ViewOrderDetailsScreen';
+import MenuItemScreen from '../app/MenuItemScreen';
+import ViewTransactionHistroyDetails from '../app/ViewTransactionHistroyDetails';
 import { CommonActions } from '@react-navigation/native'
-import LogoutScreen from '../screens/LogoutScreen';
-import VisitHelpCentreScreen from '../screens/VisitHelpCentreScreen';
-import ContactScreen from '../screens/ContactScreen';
-import BankAccountScreen from '../screens/BankAccountScreen';
+import LogoutScreen from '../app/LogoutScreen';
+import VisitHelpCentreScreen from '../app/VisitHelpCentreScreen';
+import ContactScreen from '../app/ContactScreen';
+import BankAccountScreen from '../app/BankAccountScreen';
 import NetInfo from "@react-native-community/netinfo";
-import ScanQRCodeScreen from '../screens/ScanQRCodeScreen';
-import TransactionHistory from '../screens/TransactionHistory';
-import ReviewOrderScreen from '../screens/ReviewOrderScreen';
+import ScanQRCodeScreen from '../app/ScanQRCodeScreen';
+import TransactionHistory from '../app/TransactionHistory';
+import ReviewOrderScreen from '../app/ReviewOrderScreen';
 
 
 const Stack = createStackNavigator();
