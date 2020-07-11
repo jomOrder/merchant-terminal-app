@@ -1,14 +1,12 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Dimensions, StyleSheet, View, TouchableOpacity, Image, ImageBackground, Text, ScrollView, AsyncStorage, RefreshControl, SafeAreaView } from 'react-native'
-import ViewPager from '@react-native-community/viewpager';
 const screenHeight = Math.round(Dimensions.get('window').height);
 const screenWidth = Math.round(Dimensions.get('window').width);
 import { connect } from 'react-redux';
 import { viewMerchantBranch } from '../actions'
 import { TouchableNativeFeedback } from 'react-native-gesture-handler';
 import FastImage from 'react-native-fast-image'
-import ContentLoader, { Rect, Circle } from 'react-content-loader/native'
-
+import ContentLoader, { Rect } from 'react-content-loader/native'
 
 let imageUrl = `https://jom-order.s3-ap-southeast-1.amazonaws.com/merchant-app-assets/Webp.net-resizeimage.jpg`
 const MyLoader = () => (
