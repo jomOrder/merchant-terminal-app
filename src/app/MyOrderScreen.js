@@ -12,7 +12,7 @@ import { TabView, SceneMap } from 'react-native-tab-view';
 import Animated from 'react-native-reanimated';
 import ReviewOrderScreen from './ReviewOrderScreen';
 import CancelTransactionScreen from './CancelTransactionScreen';
-import AcceptTransactionScreen from './AcceptTransactionScreen';
+import AcceptTransaction from './AcceptTransaction';
 const initialLayout = { width: Dimensions.get('window').width };
 
 const MyOrderScreen = ({ route, branch, navigation }) => {
@@ -52,7 +52,7 @@ const MyOrderScreen = ({ route, branch, navigation }) => {
                 );
             case 'completed':
                 return (
-                    <AcceptTransactionScreen navigation={navigation} />
+                    <AcceptTransaction navigation={navigation} />
                 );
             case 'cancelled':
                 return (
