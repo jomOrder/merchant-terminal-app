@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Image, AsyncStorage, Text, TouchableNativeFeedback, TouchableHighlight, View, BackHandler, Alert } from 'react-native'
+import { AsyncStorage, Text, TouchableNativeFeedback, TouchableHighlight, View, BackHandler, Alert } from 'react-native'
 import { createStackNavigator } from '@react-navigation/stack';
 import WalkthroughScreen from '../app/WalkthroughScreen';
 import LoginScreen from '../app/LoginScreen';
