@@ -9,7 +9,6 @@ import {
     AsyncStorage,
     BackHandler,
     Text,
-    Image
 } from 'react-native';
 import { ListItem, Button } from 'react-native-elements'
 const screenHeight = Math.round(Dimensions.get('window').height);

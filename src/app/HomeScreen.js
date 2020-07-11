@@ -1,11 +1,10 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Dimensions, StyleSheet, View, TouchableOpacity, Image, ImageBackground, DeviceEventEmitter, Text, ScrollView, AsyncStorage, RefreshControl, SafeAreaView, TouchableHighlight, Alert } from 'react-native'
+import { Dimensions, StyleSheet, View, TouchableOpacity, Image, ImageBackground, Text, ScrollView, AsyncStorage, RefreshControl, SafeAreaView } from 'react-native'
 import ViewPager from '@react-native-community/viewpager';
 const screenHeight = Math.round(Dimensions.get('window').height);
 const screenWidth = Math.round(Dimensions.get('window').width);
 import { connect } from 'react-redux';
 import { viewMerchantBranch } from '../actions'
-import Icon from 'react-native-vector-icons/FontAwesome5';
 import { TouchableNativeFeedback } from 'react-native-gesture-handler';
 import FastImage from 'react-native-fast-image'
 import ContentLoader, { Rect, Circle } from 'react-content-loader/native'
