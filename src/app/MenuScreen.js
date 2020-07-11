@@ -3,19 +3,15 @@ import {
     StyleSheet,
     View,
     Dimensions,
-    Image,
     Text,
-    ScrollView,
     FlatList,
     RefreshControl,
     SafeAreaView,
-    ActivityIndicator,
     TouchableOpacity,
     AsyncStorage,
     BackHandler,
-    Alert
 } from 'react-native';
-import { ListItem, Badge } from 'react-native-elements'
+import { ListItem } from 'react-native-elements'
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import { connect } from 'react-redux';
 import { viewBranchCategory } from '../actions'
