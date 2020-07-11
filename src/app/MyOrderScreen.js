@@ -1,14 +1,9 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Dimensions, StyleSheet, FlatList, View, ScrollView, SafeAreaView, Text, TouchableOpacity, AsyncStorage, RefreshControl } from 'react-native'
-import Modal from 'react-native-modal';
-import Icon from 'react-native-vector-icons/FontAwesome5';
-import Moment from 'react-moment';
-import { CommonActions } from '@react-navigation/native'
-import { Button, ListItem } from 'react-native-elements'
 const screenHeight = Math.round(Dimensions.get('window').height);
 const screenWidth = Math.round(Dimensions.get('window').width);
 import 'moment-timezone';
-import { TabView, SceneMap } from 'react-native-tab-view';
+import { TabView } from 'react-native-tab-view';
 import Animated from 'react-native-reanimated';
 import ReviewOrderScreen from './ReviewOrderScreen';
 import CancelTransactionScreen from './CancelTransactionScreen';
