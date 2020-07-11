@@ -14,7 +14,7 @@ import {
     SafeAreaView
 } from 'react-native';
 
-import { ListItem, Button, CheckBox } from 'react-native-elements'
+import { ListItem } from 'react-native-elements'
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import Moment from 'react-moment';
 const screenHeight = Math.round(Dimensions.get('window').height);
