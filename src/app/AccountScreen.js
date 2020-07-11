@@ -5,7 +5,6 @@ import {
     View,
     ScrollView,
     Text,
-    Image,
     BackHandler,
     TouchableOpacity,
     Linking,
@@ -15,7 +14,6 @@ import { ListItem, Button, CheckBox } from 'react-native-elements'
 import { accountDetails } from '../actions'
 import { connect } from 'react-redux';
 import RBSheet from "react-native-raw-bottom-sheet";
-const screenHeight = Math.round(Dimensions.get('window').height);
 const screenWidth = Math.round(Dimensions.get('window').width);
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import { Switch } from 'react-native-paper';
