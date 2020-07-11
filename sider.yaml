@@ -1,9 +1,0 @@
-linter:
-  eslint:
-    dir: .
-    config: .eslintrc
-    ext: ".js,.jsx,.es6"
-    ignore-path: .my_eslintignore
-    no-ignore: true
-    global: "require,exports:true"
-    quiet: true
