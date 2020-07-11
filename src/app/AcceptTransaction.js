@@ -5,7 +5,6 @@ import {
     StyleSheet,
     Dimensions,
     View,
-    ScrollView,
     Text,
     AsyncStorage,
     FlatList,
