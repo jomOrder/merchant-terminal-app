@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Image, AsyncStorage, Text, TouchableNativeFeedback, TouchableHighlight, View, BackHandler, Alert } from 'react-native'
-import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import WalkthroughScreen from '../app/WalkthroughScreen';
 import LoginScreen from '../app/LoginScreen';
@@ -11,7 +10,6 @@ import SplashScreen from '../app/SplashScreen';
 import ViewOrderDetailsScreen from '../app/ViewOrderDetailsScreen';
 import MenuItemScreen from '../app/MenuItemScreen';
 import ViewTransactionHistroyDetails from '../app/ViewTransactionHistroyDetails';
-import { CommonActions } from '@react-navigation/native'
 import LogoutScreen from '../app/LogoutScreen';
 import VisitHelpCentreScreen from '../app/VisitHelpCentreScreen';
 import ContactScreen from '../app/ContactScreen';
