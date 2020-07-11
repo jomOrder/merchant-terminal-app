@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Dimensions, StyleSheet, FlatList, View, ScrollView, SafeAreaView, Text, TouchableOpacity, AsyncStorage, RefreshControl } from 'react-native'
+import { Dimensions, StyleSheet, View, SafeAreaView, TouchableOpacity } from 'react-native'
 const screenHeight = Math.round(Dimensions.get('window').height);
 const screenWidth = Math.round(Dimensions.get('window').width);
 import 'moment-timezone';
