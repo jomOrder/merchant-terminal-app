@@ -19,7 +19,7 @@ import { Portal, Provider } from 'react-native-paper';
 import Spinner from 'react-native-loading-spinner-overlay';
 const screenHeight = Math.round(Dimensions.get('window').height);
 const screenWidth = Math.round(Dimensions.get('window').width);
-const LoginScreen = ({ navigation, userLogin, auth }) => {
+const Login = ({ navigation, userLogin, auth }) => {
 
     const [spinner, setSpinner] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -217,4 +217,4 @@ const mapStateToProps = ({ auth }) => {
     return { auth }
 }
 
-export default connect(mapStateToProps, { userLogin })(LoginScreen);
+export default connect(mapStateToProps, { userLogin })(Login);

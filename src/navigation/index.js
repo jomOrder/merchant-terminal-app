@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { AsyncStorage, Text, TouchableNativeFeedback, TouchableHighlight, View, BackHandler, Alert } from 'react-native'
 import { createStackNavigator } from '@react-navigation/stack';
 import WalkthroughScreen from '../app/WalkthroughScreen';
-import LoginScreen from '../app/LoginScreen';
+import Login from '../app/LoginScreen';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import MyBranchScreen from '../app/MyBranchScreen';
 import TabMainScreen from '../app/TabMainScreen';
@@ -10,7 +10,7 @@ import SplashScreen from '../app/SplashScreen';
 import ViewOrderDetailsScreen from '../app/ViewOrderDetailsScreen';
 import MenuItemScreen from '../app/MenuItemScreen';
 import ViewTransactionHistroyDetails from '../app/ViewTransactionHistroyDetails';
-import LogoutScreen from '../app/LogoutScreen';
+import Logout from '../app/modules/auth/views/Logout';
 import VisitHelpCentreScreen from '../app/VisitHelpCentreScreen';
 import ContactScreen from '../app/ContactScreen';
 import BankAccountScreen from '../app/BankAccountScreen';
@@ -65,7 +65,7 @@ const Navigation = ({ navigation }) => {
                 <Stack.Screen options={{ headerShown: false }} name="Splash" component={SplashScreen} />
                 <Stack.Screen options={{ headerShown: false }} name="Walkthrough" component={WalkthroughScreen} />
                 <Stack.Screen options={{ headerShown: false }} name="Tab" component={TabMainScreen} />
-                <Stack.Screen options={{ headerShown: false }} name="auth" component={LoginScreen} />
+                <Stack.Screen options={{ headerShown: false }} name="auth" component={Login} />
                 <Stack.Screen options={{ headerShown: false }} name="MyBranch" component={MyBranchScreen} />
                 <Stack.Screen options={{ headerShown: false }} name="ReviewOrder" component={ReviewOrderScreen} />
                 <Stack.Screen options={{
@@ -241,7 +241,7 @@ const Navigation = ({ navigation }) => {
                     headerBackTitle: null,
                     headerTintColor: '#fff',
                     headerTitleAlign: 'center',
-                }} name="Logout" component={LogoutScreen} />
+                }} name="Logout" component={Logout} />
 
                 <Stack.Screen options={{
                     headerTitle: 'Help Centre',

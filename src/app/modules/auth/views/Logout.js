@@ -21,7 +21,7 @@ import { CommonActions } from '@react-navigation/native'
 import FastImage from 'react-native-fast-image'
 
 
-const LogoutScreen = ({ route, navigation }) => {
+const Logout = ({ route, navigation }) => {
     const [spinner, setSpinner] = useState(false);
 
     const logout = async () => {
@@ -172,6 +172,6 @@ const styles = StyleSheet.create({
 });
 
 
-export default LogoutScreen;
+export default Logout;
 
 
