@@ -5,13 +5,12 @@ import {
     View,
     Image,
     Text,
-    Alert,
-    AsyncStorage,
     TextInput,
     BackHandler
 } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 import { connect } from 'react-redux';
-import { userLogin } from '../actions'
+import { userLogin } from '../../../../actions'
 import { Button } from 'react-native-elements'
 import { useForm, Controller } from 'react-hook-form';
 import { showMessage, hideMessage } from "react-native-flash-message";
@@ -30,7 +29,7 @@ const Login = ({ navigation, userLogin, auth }) => {
         setTimeout(() => {
             setSpinner(false);
             navigation.navigate("MyBranch");
-        }, 3000);
+        }, 1000);
     }
 
     const authFail = (message) => {
@@ -89,7 +88,7 @@ const Login = ({ navigation, userLogin, auth }) => {
                         justifyContent: 'center',
                     }}>
                         <Image
-                            source={require('../../assets/logo3x.png')}
+                            source={require('../assets/logo3x.png')}
                             style={styles.centering}
                         />
                     </View>

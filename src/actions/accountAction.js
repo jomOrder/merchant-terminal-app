@@ -5,8 +5,8 @@ export const MERCHANT_NOT_FOUND = 'MERCHANT_NOT_FOUND';
 export const MERCHANT_INTERNAL_SERVER_ERROR = 'MERCHANT_INTERNAL_SERVER_ERROR';
 
 
-export const accountDetails = () => async dispatch => {
-    const response = await API.viewMerchant();
+export const accountDetails = (branch_key) => async dispatch => {
+    const response = await API.viewMerchant(branch_key);
     const { data } = response;
     const { err, result, message } = data;
     try {

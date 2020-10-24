@@ -5,17 +5,14 @@ import {
     StyleSheet,
     Dimensions,
     View,
-    ScrollView,
     Text,
     RefreshControl,
-    BackHandler,
     TouchableOpacity,
     TouchableHighlight,
-    Alert,
-    AsyncStorage,
     SafeAreaView,
     FlatList
 } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import { connect } from 'react-redux';
 import { getMerchantBranches } from '../actions'
@@ -42,6 +39,7 @@ const MyLoader = () => (
 
 
 const MyBranchScreen = ({ route, navigation, branches, getMerchantBranches }) => {
+    const mounted = useRef();
     const refRBSheet = useRef();
     const [spinner, setSpinner] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -136,12 +134,20 @@ const MyBranchScreen = ({ route, navigation, branches, getMerchantBranches }) =>
     }
 
     useEffect(() => {
-        getMerchantBranches();
-        setTimeout(() => {
-            setLoading(false);
-        }, 600)
-        if (branches.length > 0) getAllBranches();
-    }, [branches.length, BRANCHES.length]);
+        if (!mounted.current) {
+            getMerchantBranches();
+            setTimeout(() => {
+                setLoading(false);
+            }, 600)
+            // do componentDidMount logic
+            mounted.current = true;
+        } else {
+            // do componentDidUpdate logic
+            if (branches.length > 0) getAllBranches();
+
+        }
+       
+    }, [branches.length, BRANCHES.length, mounted.current]);
 
     return (
         <SafeAreaView style={styles.viewScreen}>

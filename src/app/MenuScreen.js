@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
     StyleSheet,
     View,
@@ -8,10 +8,10 @@ import {
     RefreshControl,
     SafeAreaView,
     TouchableOpacity,
-    AsyncStorage,
     BackHandler,
 } from 'react-native';
-import { ListItem } from 'react-native-elements'
+import AsyncStorage from '@react-native-community/async-storage';
+import { ListItem, Avatar } from 'react-native-elements'
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import { connect } from 'react-redux';
 import { viewBranchCategory } from '../actions'
@@ -38,6 +38,7 @@ const MenuScreen = ({ navigation, viewBranchCategory, categories }) => {
     const [loading, setLoading] = useState(true);
     const [errMessage, setErrMessage] = useState(false);
     const [refreshing, setRefreshing] = React.useState(false);
+    const mounted = useRef();
 
     const wait = (timeout) => {
         return new Promise(resolve => {
@@ -57,7 +58,7 @@ const MenuScreen = ({ navigation, viewBranchCategory, categories }) => {
             setLoading(false)
         });
     }, [refreshing]);
-    
+
     const setBranchKey = async () => {
         const branch_key = await AsyncStorage.getItem('branch_key');
         viewBranchCategory(branch_key);
@@ -84,14 +85,18 @@ const MenuScreen = ({ navigation, viewBranchCategory, categories }) => {
                             style={{ marginBottom: 3 }}
                             key={index}
                             leftAvatar={
-                                <FastImage
+                                item.image.url ? <FastImage
                                     source={{
                                         uri: item.image.url,
                                     }}
                                     resizeMode={FastImage.resizeMode.cover}
                                     style={styles.imgLeftAvatar}
                                 />
-                            }
+                                    : <Avatar
+                                        size="medium"
+                                        title="?"
+                                        activeOpacity={0.7}
+                                    />}
                             title={
                                 <Text style={styles.listItemTitle}>{item.name}</Text>
                             }
@@ -117,33 +122,42 @@ const MenuScreen = ({ navigation, viewBranchCategory, categories }) => {
     }
 
     useEffect(() => {
-        setBranchKey();
-        setTimeout(() => {
-            setLoading(false)
-        }, 400)
+        if (!mounted.current) {
+            setBranchKey();
+            setTimeout(() => {
+                setLoading(false)
+            }, 400)
+            mounted.current = true;
+        } else {
+            // do componentDidUpdate logic
+
+        }
+
         // BackHandler.addEventListener('hardwareBackPress', handlegoBackBtn)
     }, [categories.length, loading]);
     return (
         <SafeAreaView style={styles.viewScreen}>
-            <FlatList
-                ListEmptyComponent={<View style={{
-                    alignSelf: 'center',
-                    marginVertical: 200,
-                    height: 100,
-                    lineHeight: 100
-                }}>
-                    <Text style={{ fontSize: 15, fontWeight: "bold", color: "#858F95" }}>No Menus Avaliable yet</Text>
-                </View>}
-                contentContainerStyle={styles.scrollView}
-                refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-                }
-                showsVerticalScrollIndicator={false}
-                legacyImplementation={false}
-                data={categories}
-                renderItem={item => renderMenu(item)}
-                keyExtractor={item => item.id.toString(2)}
-            />
+            <SafeAreaView>
+                <FlatList
+                    ListEmptyComponent={<View style={{
+                        alignSelf: 'center',
+                        marginVertical: 200,
+                        height: 100,
+                        lineHeight: 100
+                    }}>
+                        <Text style={{ fontSize: 15, fontWeight: "bold", color: "#858F95" }}>No Menus Avaliable yet</Text>
+                    </View>}
+                    contentContainerStyle={styles.scrollView}
+                    refreshControl={
+                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                    }
+                    showsVerticalScrollIndicator={false}
+                    legacyImplementation={false}
+                    data={categories}
+                    renderItem={item => renderMenu(item)}
+                    keyExtractor={item => item.id.toString(2)}
+                />
+            </SafeAreaView>
         </SafeAreaView>
 
     );

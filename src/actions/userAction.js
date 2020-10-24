@@ -22,7 +22,6 @@ export const userLogin = (credentials) => async dispatch => {
         });
 
     } catch (e) {
-        console.log(e)
         dispatch({
             type: INTERNAL_SERVER_ERROR,
             payload: { err: 500 }

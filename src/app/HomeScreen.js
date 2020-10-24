@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { Dimensions, StyleSheet, View, TouchableOpacity, Image, ImageBackground, Text, ScrollView, AsyncStorage, RefreshControl, SafeAreaView } from 'react-native'
+import React, { useEffect, useState, useCallback, useRef } from 'react';
+import { Dimensions, StyleSheet, View, Image, ImageBackground, Text, ScrollView, RefreshControl, SafeAreaView } from 'react-native'
 const screenHeight = Math.round(Dimensions.get('window').height);
 const screenWidth = Math.round(Dimensions.get('window').width);
 import { connect } from 'react-redux';
@@ -7,8 +7,10 @@ import { viewMerchantBranch } from '../actions'
 import { TouchableNativeFeedback } from 'react-native-gesture-handler';
 import FastImage from 'react-native-fast-image'
 import ContentLoader, { Rect } from 'react-content-loader/native'
+import AsyncStorage from '@react-native-community/async-storage';
 
-let imageUrl = `https://jom-order.s3-ap-southeast-1.amazonaws.com/merchant-app-assets/Webp.net-resizeimage.jpg`
+let imageUrl = 'https://s3-ap-southeast-1.amazonaws.com/api.thejomorder.com/mobile-assets/background_image.jpg'
+
 const MyLoader = () => (
     <View style={{ paddingLeft: 30 }}>
         <ContentLoader width={350}
@@ -22,9 +24,12 @@ const MyLoader = () => (
         </ContentLoader>
     </View>
 
+
 );
 
 const HomeScreen = ({ navigation, merchantBranch, viewMerchantBranch }) => {
+
+    const mounted = useRef();
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
@@ -61,15 +66,23 @@ const HomeScreen = ({ navigation, merchantBranch, viewMerchantBranch }) => {
         viewMerchantBranch(branch_key);
     }
 
-
     useEffect(() => {
-        getMerchantBranch();
-        setTimeout(() => {
-            setLoading(false)
-        }, 700)
-        setInterval(() => {
+        if (!mounted.current) {
+            // do componentDidMount logic
+            setTimeout(() => {
+                setLoading(false)
+            }, 700)
+
+            // getMerchantBranch();
+            mounted.current = true;
+        } else {
+            // do componentDidUpdate logic
             getMerchantBranch();
-        }, 5000);
+        }
+
+        // setInterval(() => {
+        //     getMerchantBranch();
+        // }, 5000);
     }, [loading, merchantBranch.length]);
 
     return (
@@ -164,8 +177,6 @@ const HomeScreen = ({ navigation, merchantBranch, viewMerchantBranch }) => {
 
                                                 />
                                             </View>
-
-
                                         </View>
                                         <View style={{ flexDirection: 'column' }}>
                                             <Text style={{ color: "#999999", fontSize: 13, fontWeight: "bold", textAlign: 'center' }}>Item Menu</Text>
@@ -180,14 +191,11 @@ const HomeScreen = ({ navigation, merchantBranch, viewMerchantBranch }) => {
                                 <View style={[styles.box, { justifyContent: 'center', borderBottomLeftRadius: 35 }]}>
                                     <View style={{ alignSelf: 'center' }}>
                                         <View style={{ borderRadius: 24, }}>
-
                                             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-
                                                 <FastImage
                                                     source={require('../../assets/settings.png')}
                                                     style={styles.centeringIcon}
                                                     resizeMode={FastImage.resizeMode.cover}
-
                                                 />
                                             </View>
                                         </View>
@@ -197,20 +205,6 @@ const HomeScreen = ({ navigation, merchantBranch, viewMerchantBranch }) => {
                                     </View>
                                 </View>
                             </TouchableNativeFeedback>
-                        </View>
-                        <View style={[styles.wrapper, { width: 180 }]}>
-                            <View style={[styles.scanBox, { alignSelf: 'center' }]}>
-                                <TouchableOpacity activeOpacity={0.5} onPress={() => { }}>
-                                    <View>
-                                        <FastImage
-                                            source={require('../../assets/scan.png')}
-                                            style={styles.centeringScanIcon}
-                                            resizeMode={FastImage.resizeMode.cover}
-
-                                        />
-                                    </View>
-                                </TouchableOpacity>
-                            </View>
                         </View>
                     </View>
                 </View>

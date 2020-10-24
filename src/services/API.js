@@ -1,8 +1,8 @@
 import axios from 'axios';
-import { AsyncStorage, Alert } from 'react-native'
+import AsyncStorage from '@react-native-community/async-storage';
 const API = axios.create();
 
-API.defaults.baseURL = 'http://13.250.39.193/api'
+API.defaults.baseURL = 'https://api-core.thejomorder.com/api'
 API.interceptors.request.use(
   async config => {
     const token = await AsyncStorage.getItem('token');
@@ -29,16 +29,16 @@ export default {
     return API.get(`/transaction/merchant/branch/order?branchID=${branchID}&status=${transactionStatus}`);
   },
 
-  viewBranchOrdersTransactionHistoy: async (branchID) => {
-    return API.get(`/transaction/merchant/branch/history?branchID=${branchID}`);
+  viewBranchOrdersTransactionHistoy: async (branchID, ) => {
+    return API.get(`/transaction/merchant/branch/history?branchID=${branchID}&page=0&offset=30`);
   },
 
-  viewBranchOrdersTransactionAccepted: async (branchID) => {
-    return API.get(`/transaction/merchant/branch/accepted?branchID=${branchID}`);
+  viewBranchOrdersTransactionAccepted: async (branchID, page = 0) => {
+    return API.get(`/transaction/merchant/branch/accepted?branchID=${branchID}&page=${page}`);
   },
 
-  viewBranchOrdersTransactionCancelled: async (branchID) => {
-    return API.get(`/transaction/merchant/branch/cancelled?branchID=${branchID}`);
+  viewBranchOrdersTransactionCancelled: async (branchID, page = 0) => {
+    return API.get(`/transaction/merchant/branch/cancelled?branchID=${branchID}&page=${page}`);
   },
 
   acceptTransaction: async (branchID, transactionID) => {
@@ -51,17 +51,15 @@ export default {
 
   cancelTransaction: async (branchID, transactionID) => {
     try {
-      console.log("Hello")
       return API.post(`/transaction/merchant/branch/status?branchID${branchID}&transactionID=${transactionID}`, { status: 2 });
 
     } catch (e) {
-      console.log("Hello1")
       console.log(e.message)
     }
   },
 
-  viewMerchant: async => {
-    return API.get('/merchant/single')
+  viewMerchant: async branchID => {
+    return API.get(`/merchant/single?branchID=${branchID}`)
   },
 
   getMerchantBranches: async pageNo => {
@@ -72,7 +70,14 @@ export default {
     return API.get(`/merchant/branches/single?branch_key=${branchKey}`);
   },
 
+  /**
+   * 
+   */
   viewBranchCategoryAndItems: async branchKey => {
-    return API.get(`merchant/branch/view/mobile/categoryAndItem?branch_key=${branchKey}`);
+    return API.get(`/merchant/branch/view/mobile/categoryAndItem?branch_key=${branchKey}`);
+  },
+
+  updateMerchantStatus: async (branchKey, status) => {
+    return API.post(`/merchant/branch/update/status?branchID=${branchKey}&status=${status}`);
   },
 };  

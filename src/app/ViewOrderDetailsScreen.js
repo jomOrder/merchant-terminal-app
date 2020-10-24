@@ -1,4 +1,4 @@
-import React, { useState, useEffect, createRef } from 'react';
+import React, { useState, useEffect, createRef, useRef } from 'react';
 import {
     StyleSheet,
     Dimensions,
@@ -6,13 +6,14 @@ import {
     TouchableOpacity,
     Text,
     FlatList,
-    AsyncStorage,
     SafeAreaView,
     TouchableHighlight,
     DeviceEventEmitter,
     BackHandler
 
 } from 'react-native';
+
+import AsyncStorage from '@react-native-community/async-storage';
 import { ListItem, Button } from 'react-native-elements'
 const screenHeight = Math.round(Dimensions.get('window').height);
 const screenWidth = Math.round(Dimensions.get('window').width);
@@ -24,10 +25,15 @@ import SunmiInnerPrinter from 'react-native-sunmi-inner-printer';
 
 import { connect } from 'react-redux';
 import { acceptOrderTransaction, cancelOrderTransaction, updateBranchStatusBalance } from '../actions'
+import moment from 'moment-timezone'
+moment.tz.setDefault('Asia/Singapore');
 
 const ViewOrderDetailsScreen = ({ route, navigation, accepted, canceled, updateBalance, acceptOrderTransaction, cancelOrderTransaction, updateBranchStatusBalance }) => {
     const { items, total, tax, sub_total, method, tableNo, transactionID } = route.params;
     const actionSheetRef = createRef();
+    const actionSheetRef1 = createRef();
+    const mounted = useRef();
+
     const [loading, setLoading] = useState(false);
     const [includeTotal, setIncludeTotal] = useState(null);
     const [moreContent, setMoreContent] = useState(false);
@@ -36,6 +42,7 @@ const ViewOrderDetailsScreen = ({ route, navigation, accepted, canceled, updateB
 
     const confirmCancelOrder = () => actionSheetRef.current?.setModalVisible(true);
 
+    const confirmOrder = () => actionSheetRef1.current?.setModalVisible(true);
 
     const renderOrderItem = ({ item, index }) => {
         return (
@@ -45,10 +52,23 @@ const ViewOrderDetailsScreen = ({ route, navigation, accepted, canceled, updateB
                     key={index}
                     leftAvatar={<View
                         style={styles.listItemCartQuantity}><Text style={styles.listItemCartQuantityText}>{item.quantity}x</Text></View>}
-                    title={<Text style={styles.listItemCartTitle}>{item.name}</Text>}
                     rightAvatar={<View style={{ paddingBottom: 5 }}>
-                        <Text>RM {item.price}</Text>
+                        <Text key={index}>RM {item.price}</Text>
                     </View>}
+                    title={
+                        <View style={{ flexDirection: 'column' }}>
+                            <Text style={styles.listItemCartTitle}>{item.name}</Text>
+                            <View style={{ paddingTop: 5, paddingBottom: 5 }}>
+                                {item.addOns.map((el, index) => {
+                                    return (
+                                        <View key={index} style={{ flexDirection: 'row' }}>
+                                            <Text style={{ fontSize: 13, fontWeight: "400", marginRight: 10 }}>{el.name}</Text>
+                                        </View>
+                                    )
+                                })}
+                            </View>
+                        </View>}
+
                 />
             </View>
         )
@@ -67,13 +87,43 @@ const ViewOrderDetailsScreen = ({ route, navigation, accepted, canceled, updateB
         let listString = list.toString();
         await AsyncStorage.setItem('orders', listString)
         acceptOrderTransaction(branch_key, transactionID);
+        actionSheetRef1.current?.setModalVisible(false);
         handlePrintReceipt();
         setSpinner(true);
-        setTimeout(() => {
-            //updateBranchStatusBalance(branch_key, transactionID);
+          setTimeout(() => {
             setSpinner(false);
             navigation.navigate('Tab', { screen: 'Orders' });
         }, 2000);
+       
+    }
+
+    const updateBranchBalance = async () => {
+        const branch_key = await AsyncStorage.getItem('branch_key');
+        console.log("branch_key", branch_key)
+        console.log("transactionID: ", transactionID)
+        updateBranchStatusBalance(branch_key, transactionID);
+        // setTimeout(() => {
+        //     setSpinner(false);
+        //     navigation.navigate('Tab', { screen: 'Orders' });
+        // }, 2000);
+        console.log("updateBalance: ", updateBalance)
+
+    }
+
+    const acceptWithoutOrder = async () => {
+
+        const branch_key = await AsyncStorage.getItem('branch_key');
+        const ordersList = await AsyncStorage.getItem('orders');
+        let list = ordersList - 1;
+        let listString = list.toString();
+        await AsyncStorage.setItem('orders', listString)
+        acceptOrderTransaction(branch_key, transactionID);
+        actionSheetRef1.current?.setModalVisible(false);
+        setSpinner(true);
+          setTimeout(() => {
+            setSpinner(false);
+            navigation.navigate('Tab', { screen: 'Orders' });
+        }, 1000);
     }
 
     const cancelOrder = async () => {
@@ -87,63 +137,61 @@ const ViewOrderDetailsScreen = ({ route, navigation, accepted, canceled, updateB
         setTimeout(() => {
             setSpinner(false);
             navigation.navigate('Tab', { screen: 'Orders' });
-            console.log(branch_key)
-            console.log(transactionID)
             cancelOrderTransaction(branch_key, transactionID);
-
         }, 1000);
     }
 
     const handlePrintReceipt = async () => {
+        actionSheetRef1.current?.setModalVisible(false);
         let orderList = [];
         items.map((el) => {
-          let name = el.quantity + "x " + el.name;
-          let arr = [name, "", ""];
-          orderList.push(arr)
-          let price = "RM" + el.price;
-          let arr2 = ["", "", price];
-          orderList.push(arr2)
+            let name = el.quantity + "x " + el.name;
+            let arr = [name, "", ""];
+            orderList.push(arr)
+            let price = "RM" + el.price;
+            let arr2 = ["", "", price];
+            orderList.push(arr2)
         });
-    
+
         let columnAliment = [0, 1, 2];
         let columnWidth = [24, 1, 8]
-    
+
         try {
-          //await SunmiInnerPrinter.setAlignment(1);
-          //await SunmiInnerPrinter.printBitmap(logobase64, 384/*width*/, 380/*height*/);
-          //set aligment: 0-left,1-center,2-right
-          await SunmiInnerPrinter.setAlignment(1);
-          await SunmiInnerPrinter.setFontSize(30);
-          await SunmiInnerPrinter.printOriginalText("Penang Road Restaurant\n");
-          await SunmiInnerPrinter.setAlignment(1);
-          await SunmiInnerPrinter.setFontSize(25);
-          await SunmiInnerPrinter.printOriginalText("Sunway Giza\n");
-          await SunmiInnerPrinter.setFontSize(22);
-          await SunmiInnerPrinter.printOriginalText("_________________________________\n");
-          await SunmiInnerPrinter.setAlignment(0);
-          await SunmiInnerPrinter.printOriginalText(`Date :  17-06-2020\n`);
-          await SunmiInnerPrinter.printOriginalText(`Transaction : ${method}\n`);
-          await SunmiInnerPrinter.printOriginalText(`Time : 7:43 PM\n`);
-          await SunmiInnerPrinter.printOriginalText(`Table : ${tableNo}\n`);
-          await SunmiInnerPrinter.printOriginalText("_________________________________\n");
-          await SunmiInnerPrinter.setFontSize(22);
-          for (var i in orderList) {
-            await SunmiInnerPrinter.printColumnsText(orderList[i], columnWidth, columnAliment);
-          }
-          await SunmiInnerPrinter.setFontSize(22);
-          await SunmiInnerPrinter.printOriginalText("_________________________________\n");
-          await SunmiInnerPrinter.setAlignment(2);
-          await SunmiInnerPrinter.setFontSize(30);
-          await SunmiInnerPrinter.printOriginalText(`\nSubtotal: ${sub_total}\n`);
-          await SunmiInnerPrinter.printOriginalText(`  GST 6%:   ${tax}\n`);
-          await SunmiInnerPrinter.setFontSize(22);
-          await SunmiInnerPrinter.printOriginalText("_________________________________\n");
-          await SunmiInnerPrinter.setFontSize(30);
-          await SunmiInnerPrinter.printOriginalText(`\nGrand Total: RM${total}\n`);
-          await SunmiInnerPrinter.printOriginalText("\n\n\n\n\n");
-    
+            //await SunmiInnerPrinter.setAlignment(1);
+            //await SunmiInnerPrinter.printBitmap(logobase64, 384/*width*/, 380/*height*/);
+            //set aligment: 0-left,1-center,2-right
+            await SunmiInnerPrinter.setAlignment(1);
+            await SunmiInnerPrinter.setFontSize(30);
+            await SunmiInnerPrinter.printOriginalText("Khalida Restaurant\n");
+            await SunmiInnerPrinter.setAlignment(1);
+            await SunmiInnerPrinter.setFontSize(25);
+            await SunmiInnerPrinter.printOriginalText("Shah Alam\n");
+            await SunmiInnerPrinter.setFontSize(22);
+            await SunmiInnerPrinter.printOriginalText("_________________________________\n");
+            await SunmiInnerPrinter.setAlignment(0);
+            await SunmiInnerPrinter.printOriginalText(`Date :  ${moment(new Date()).tz('Asia/Singapore').format('YYYY-MM-DD')}\n`);
+            await SunmiInnerPrinter.printOriginalText(`Transaction : ${method}\n`);
+            await SunmiInnerPrinter.printOriginalText(`Time : ${moment(new Date()).tz('Asia/Singapore').format('HH:mm a')}\n`);
+            await SunmiInnerPrinter.printOriginalText(`Table : ${tableNo}\n`);
+            await SunmiInnerPrinter.printOriginalText("_________________________________\n");
+            await SunmiInnerPrinter.setFontSize(22);
+            for (var i in orderList) {
+                await SunmiInnerPrinter.printColumnsText(orderList[i], columnWidth, columnAliment);
+            }
+            await SunmiInnerPrinter.setFontSize(22);
+            await SunmiInnerPrinter.printOriginalText("_________________________________\n");
+            await SunmiInnerPrinter.setAlignment(2);
+            await SunmiInnerPrinter.setFontSize(30);
+            await SunmiInnerPrinter.printOriginalText(`\nSubtotal: ${sub_total}\n`);
+            await SunmiInnerPrinter.printOriginalText(`  GST 6%:   ${tax}\n`);
+            await SunmiInnerPrinter.setFontSize(22);
+            await SunmiInnerPrinter.printOriginalText("_________________________________\n");
+            await SunmiInnerPrinter.setFontSize(30);
+            await SunmiInnerPrinter.printOriginalText(`\nGrand Total: RM${total}\n`);
+            await SunmiInnerPrinter.printOriginalText("\n\n\n\n\n");
+
         } catch (e) {
-          alert("print error." + e.message);
+            alert("print error." + e.message);
         }
 
     }
@@ -176,12 +224,19 @@ const ViewOrderDetailsScreen = ({ route, navigation, accepted, canceled, updateB
     }
 
     useEffect(() => {
-        handleDeviceEmitter();
-        return () => {
-            //BackHandler Remove
-            DeviceEventEmitter.removeAllListeners();
+        if (!mounted.current) {
+            // do componentDidMount logic
+            handleDeviceEmitter();
+            mounted.current = true;
+        } else {
+            console.log("accepted: ", accepted)
+            // if(accepted.length > 0) updateBranchBalance()
+            return () => {
+                //BackHandler Remove
+                DeviceEventEmitter.removeAllListeners();
+            }
         }
-    }, [accepted.length, canceled.length, items.length, printerStatus]);
+    }, [accepted.length, canceled.length, items.length, printerStatus, updateBalance]);
 
     return (
         <SafeAreaView style={styles.viewContainer}>
@@ -309,6 +364,43 @@ const ViewOrderDetailsScreen = ({ route, navigation, accepted, canceled, updateB
 
                         </View>
                     </ActionSheet>
+                    <ActionSheet defaultOverlayOpacity={0.5} containerStyle={{
+                        height: 250,
+                    }} footerHeight={300} extraScroll={10} footerAlwaysVisible={true} closeOnTouchBackdrop={false} defaultOverlayOpacity={0.5} ref={actionSheetRef1}>
+                        <View style={{ marginTop: 40, alignItems: 'center', alignSelf: 'center' }}>
+                            <View style={{ justifyContent: 'flex-start' }}>
+                                <Text style={{ fontSize: 21, fontWeight: 'bold', paddingLeft: 15, paddingRight: 10, lineHeight: 35 }}>Accept Order</Text>
+                            </View>
+                        </View>
+                        <View style={{
+                            width: screenWidth,
+                            padding: 15,
+                        }}>
+                            <TouchableOpacity
+                                activeOpacity={0.9}>
+                                <View>
+                                    <Button
+                                        titleStyle={styles.loginBtn}
+                                        buttonStyle={{
+                                            height: 45,
+                                            marginBottom: 10,
+                                            backgroundColor: "#E02D2D",
+                                        }} title={"Print Receipt"} onPress={() => acceptOrder()}></Button>
+                                    <Button
+                                        titleStyle={styles.loginBtn}
+                                        buttonStyle={{
+                                            height: 45,
+                                            backgroundColor: "#E02D2D",
+                                        }} title={"Proceed Without Receipt"} onPress={() => acceptWithoutOrder()}></Button>
+                                </View>
+
+                                {loading ? (
+                                    <ActivityIndicator color="white" style={{ marginLeft: 8 }} />
+                                ) : null}
+                            </TouchableOpacity>
+
+                        </View>
+                    </ActionSheet>
                 </View>
                 <View style={{
                     position: 'absolute',
@@ -327,7 +419,7 @@ const ViewOrderDetailsScreen = ({ route, navigation, accepted, canceled, updateB
                             height: 50,
                             borderRadius: 0,
                             backgroundColor: "#32a867",
-                        }} title="ACCEPT" onPress={() => acceptOrder()} />
+                        }} title="ACCEPT" onPress={() => confirmOrder()} />
 
                 </View>
                 <Provider>

@@ -3,13 +3,11 @@ import {
     StyleSheet,
     Dimensions,
     View,
-    ScrollView,
     Text,
     BackHandler,
     SafeAreaView,
     FlatList,
     TouchableOpacity,
-    Alert,
 } from 'react-native';
 
 

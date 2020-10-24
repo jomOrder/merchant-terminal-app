@@ -1,25 +1,25 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, forwardRef } from 'react';
 import {
     StyleSheet,
     Dimensions,
     View,
     Text,
-    AsyncStorage,
     FlatList,
     TouchableOpacity,
     BackHandler,
+    Alert,
     RefreshControl,
     SafeAreaView
 } from 'react-native';
-
+import AsyncStorage from '@react-native-community/async-storage';
 import { ListItem } from 'react-native-elements'
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import Moment from 'react-moment';
 const screenHeight = Math.round(Dimensions.get('window').height);
 const screenWidth = Math.round(Dimensions.get('window').width);
-import { connect } from 'react-redux';
 import ContentLoader, { Rect, Circle } from 'react-content-loader/native'
-import { getTransactionAccepted } from '../actions'
+import moment from 'moment-timezone'
+moment.tz.setDefault('Asia/Singapore');
 
 const MyLoader = () => (
     <View style={{ paddingLeft: 20, paddingRight: 20 }}>
@@ -36,7 +36,8 @@ const MyLoader = () => (
 );
 
 
-const AcceptTransactionScreen = ({ navigation, transactionsAccepted, getTransactionAccepted }) => {
+const AcceptTransactionScreen = forwardRef(({ transactionsAccepted = [], handleAcceptScrolldown, navigation }, ref) => {
+    const mounted = useRef();
     const refRBSheet = useRef();
     const [spinner, setSpinner] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -65,6 +66,11 @@ const AcceptTransactionScreen = ({ navigation, transactionsAccepted, getTransact
         const branch_key = await AsyncStorage.getItem('branch_key');
         getTransactionAccepted(branch_key);
 
+    }
+
+    const handleTransactionEnd = () => {
+        console.log("Hello")
+        handleAcceptScrolldown();
     }
 
     const renderTransactions = ({ item, index }) => {
@@ -105,7 +111,8 @@ const AcceptTransactionScreen = ({ navigation, transactionsAccepted, getTransact
                         </View>}
                         subtitleStyle={styles.listItemSub}
                         rightAvatar={<View style={{ flexDirection: 'row' }}>
-                            <Moment loc style={{ color: "#000", fontWeight: "600", fontSize: 13 }} element={Text} tz="Asia/Taipei" format="HH:mm a">{item.createDate}</Moment>
+                            <Text>{moment(item.createDate).tz('Asia/Singapore').format('HH:mm a')}</Text>
+                            {/* <Moment loc style={{ color: "#000", fontWeight: "600", fontSize: 13 }} element={Text} tz="Asia/Taipei" format="HH:mm a">{item.createDate}</Moment> */}
                             <Icon
                                 style={{ color: "#d0d0d0", marginLeft: 10 }}
                                 size={15}
@@ -118,34 +125,32 @@ const AcceptTransactionScreen = ({ navigation, transactionsAccepted, getTransact
         )
     }
 
-    const handlegoBackBtn = () => {
-        navigation.goBack();
-    }
     useEffect(() => {
-
-        setBranchKey();
-        setTimeout(() => {
-            setLoading(false)
-        }, 600)
-        setInterval(() => {
-            setBranchKey();
-        }, 8000);
+        if (!mounted.current) {
+            setTimeout(() => {
+                setLoading(false)
+            }, 600)
+            // do componentDidMount logic
+            mounted.current = true;
+        } else {
+            // do componentDidUpdate logic
+        }
         // BackHandler.addEventListener('hardwareBackPress', handlegoBackBtn)
-    }, [transactionsAccepted.length, loading]);
+    }, [transactionsAccepted.length, loading, mounted]);
 
     return (
         <SafeAreaView style={styles.viewScreen}>
-            <View>
+            <View style={{ flex: 1}}>
                 <FlatList
-                    ListHeaderComponent={
-                        <View style={styles.itemContainer}>
-                            <ListItem
-                                titleStyle={styles.listItemTitile}
-                                title="Today, June 18"
-                                bottomDivider
-                            />
-                        </View>
-                    }
+                    // ListHeaderComponent={
+                    //     <View style={styles.itemContainer}>
+                    //         <ListItem
+                    //             titleStyle={styles.listItemTitile}
+                    //             title="Today, June 18"
+                    //             bottomDivider
+                    //         />
+                    //     </View>
+                    // }
                     ListEmptyComponent={<View style={{
                         alignSelf: 'center',
                         position: 'absolute',
@@ -155,8 +160,12 @@ const AcceptTransactionScreen = ({ navigation, transactionsAccepted, getTransact
                     }}>
                         <Text style={{ fontSize: 15, fontWeight: "bold", color: "#858F95" }}>No Transactions Avaliable yet</Text>
                     </View>}
+                    onEndReached={() => {
+                       console.log("Hello")
+                    }} 
+                    onEndReachedThreshold={0}
                     scrollEnabled={true}
-                    contentContainerStyle={styles.scrollView}
+                    // contentContainerStyle={styles.scrollView}
                     showsVerticalScrollIndicator={false}
                     refreshControl={
                         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
@@ -165,7 +174,7 @@ const AcceptTransactionScreen = ({ navigation, transactionsAccepted, getTransact
                     data={transactionsAccepted}
                     renderItem={item => renderTransactions(item)}
                     keyExtractor={item => item.id.toString(2)}
-                    
+
                 />
             </View>
         </SafeAreaView>
@@ -173,7 +182,7 @@ const AcceptTransactionScreen = ({ navigation, transactionsAccepted, getTransact
 
 
     )
-}
+});
 
 
 const styles = StyleSheet.create({
@@ -226,9 +235,5 @@ const styles = StyleSheet.create({
 });
 
 
-const mapStateToProps = ({ transactionsAccepted }) => {
-    return { transactionsAccepted }
-}
-
-export default connect(mapStateToProps, { getTransactionAccepted })(AcceptTransactionScreen);
+export default AcceptTransactionScreen;
 

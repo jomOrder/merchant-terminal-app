@@ -6,28 +6,25 @@ import {
     Dimensions,
     View,
     ImageBackground,
-    AsyncStorage,
     BackHandler,
     Text,
 } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 import { ListItem, Button } from 'react-native-elements'
 const screenHeight = Math.round(Dimensions.get('window').height);
 const screenWidth = Math.round(Dimensions.get('window').width);
-import Icon from 'react-native-vector-icons/FontAwesome5';
 import { Portal, Provider } from 'react-native-paper';
 import Spinner from 'react-native-loading-spinner-overlay';
 import { CommonActions } from '@react-navigation/native'
 import FastImage from 'react-native-fast-image'
 
-
 const Logout = ({ route, navigation }) => {
     const [spinner, setSpinner] = useState(false);
-
+    const { branch, image } = route.params;
     const logout = async () => {
         try {
             await AsyncStorage.removeItem('token');
             await AsyncStorage.removeItem('branch_key');
-            console.log(true);
         }
         catch (exception) {
             console.log(exception);
@@ -74,13 +71,13 @@ const Logout = ({ route, navigation }) => {
 
                     >
                         <View style={{}}>
-                            <Text style={styles.headerTitle}>Restoran Anwar Maju - Ara Damansara</Text>
+                            <Text style={styles.headerTitle}>Restoran {branch.name} - {branch.location}</Text>
                             <Text style={styles.headerSubText}>In-Store Prices, Malaysian, Western, Pasta</Text>
                         </View>
                     </ImageBackground>
-                    <View style={{flex: 1, justifyContent:'center', alignSelf:'center'}}>
+                    <View style={{ flex: 1, justifyContent: 'center', alignSelf: 'center' }}>
                         <FastImage
-                            source={{uri: "https://lh3.googleusercontent.com/p/AF1QipNPvjA15VhHjsanfhR1Wqgwh_bZlCqLom1o2RIH=s1280-p-no-v1"}}
+                            source={{ uri: image }}
                             style={styles.centeringProfile}
                             resizeMode={FastImage.resizeMode.cover}
 

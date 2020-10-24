@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { AsyncStorage, Text, TouchableNativeFeedback, TouchableHighlight, View, BackHandler, Alert } from 'react-native'
+import { TouchableNativeFeedback, TouchableHighlight, View, BackHandler, Alert } from 'react-native'
 import { createStackNavigator } from '@react-navigation/stack';
 import WalkthroughScreen from '../app/WalkthroughScreen';
-import Login from '../app/LoginScreen';
+import Login from '../app/modules/auth/views/Login';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import MyBranchScreen from '../app/MyBranchScreen';
 import TabMainScreen from '../app/TabMainScreen';
@@ -18,6 +18,7 @@ import NetInfo from "@react-native-community/netinfo";
 import ScanQRCodeScreen from '../app/ScanQRCodeScreen';
 import TransactionHistory from '../app/TransactionHistory';
 import ReviewOrderScreen from '../app/ReviewOrderScreen';
+import AsyncStorage from '@react-native-community/async-storage';
 
 
 const Stack = createStackNavigator();
@@ -38,7 +39,6 @@ const Navigation = ({ navigation }) => {
     }
 
     const handleNetworkIssue = () => {
-        console.log("Yes")
         NetInfo.fetch().then(({ isConnected, type }) => {
             if (isConnected) setTimeout(() => {
                 setLoading(false)
@@ -67,7 +67,7 @@ const Navigation = ({ navigation }) => {
                 <Stack.Screen options={{ headerShown: false }} name="Tab" component={TabMainScreen} />
                 <Stack.Screen options={{ headerShown: false }} name="auth" component={Login} />
                 <Stack.Screen options={{ headerShown: false }} name="MyBranch" component={MyBranchScreen} />
-                <Stack.Screen options={{ headerShown: false }} name="ReviewOrder" component={ReviewOrderScreen} />
+                {/* <Stack.Screen options={{ headerShown: false }} name="ReviewOrder" component={ReviewOrderScreen} /> */}
                 <Stack.Screen options={{
                     headerTitle: 'Menu Item',
                     headerTitleStyle: {

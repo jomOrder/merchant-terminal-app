@@ -10,8 +10,9 @@ import {
     Linking,
     Alert
 } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 import { ListItem, Button, CheckBox } from 'react-native-elements'
-import { accountDetails } from '../actions'
+import { accountDetails, updateMerchantTime } from '../actions'
 import { connect } from 'react-redux';
 import RBSheet from "react-native-raw-bottom-sheet";
 const screenWidth = Math.round(Dimensions.get('window').width);
@@ -35,15 +36,20 @@ const MyLoader = () => (
 
 );
 
-const AccountScreen = ({ navigation, account, accountDetails }) => {
+const AccountScreen = ({ navigation, account, accountDetails, updateMerchantTime, updateTime, }) => {
+    const mounted = useRef();
     const refRBSheet = useRef();
     const [loading, setLoading] = useState(true);
     const [retailName, setRetailName] = useState(null);
     const [email, setEmail] = useState(null);
+    const [mobile, setMobile] = useState(null);
+    const [image, setImage] = useState(null);
+
     const [feedackTitle, setFeedackTitle] = useState('Enjoying the JomOrder app so far?');
     const [firstBtn, setFirstBtn] = useState('Love it');
     const [secondBtn, setSecondBtn] = useState('Not Really');
     const [isSwitchOn, setIsSwitchOn] = useState(false);
+
     const [isAutoPrint, setAutoPrint] = useState(false);
     const [visible, setVisible] = useState(false);
 
@@ -73,7 +79,17 @@ const AccountScreen = ({ navigation, account, accountDetails }) => {
                     onPress: () => setIsSwitchOn(true),
                     style: "cancel"
                 },
-                { text: "Confirm", onPress: () => setIsSwitchOn(false) }
+                {
+                    text: "Confirm", onPress: async () => {
+                        setIsSwitchOn(false)
+                        const branch_key = await AsyncStorage.getItem('branch_key');
+                        updateMerchantTime(branch_key, 0)
+                        setTimeout(() => {
+                            getAccountInfo();
+                        }, 300)
+                
+                    }
+                }
             ],
             { cancelable: true }
         );
@@ -90,19 +106,45 @@ const AccountScreen = ({ navigation, account, accountDetails }) => {
         }
     }
 
+    const handleUpdateBranchStatus = async () => {
+        // setIsSwitchOn(!isSwitchOn)
+        setVisible(!visible)
+        const branch_key = await AsyncStorage.getItem('branch_key');
+        updateMerchantTime(branch_key, 1)
+        setTimeout(() => {
+            getAccountInfo();
+        }, 2000)
+
+    }
     const handlegoBackBtn = () => {
         navigation.navigate('Tab')
     }
+    const getAccountInfo = async () => {
+        const branch_key = await AsyncStorage.getItem('branch_key');
+        accountDetails(branch_key);
+    }
 
     useEffect(() => {
-        accountDetails();
-        if (account.length > 0) {
-            setRetailName(account[0].merchant.retail_name)
-            setEmail(account[0].email)
+        if (!mounted.current) {
+            getAccountInfo();
+
+            setTimeout(() => {
+                setLoading(false)
+            }, 300)
+            mounted.current = true;
+        } else {
+            // do componentDidUpdate logic
+            if (account.length > 0) {
+                setRetailName(account[0].merchant.retail_name)
+                setEmail(account[0].email)
+                setMobile(account[0].merchant.mobile)
+                setImage(account[0].merchant.image.url)
+                if(account[0].merchant.branches[0].status === 1) setIsSwitchOn(true)
+                else setIsSwitchOn(false)
+            }
         }
-        setTimeout(() => {
-            setLoading(false)
-        }, 600)
+
+
         //BackHandler.addEventListener('hardwareBackPress', handlegoBackBtn)
         return () => {
             //BackHandler Remove
@@ -130,12 +172,12 @@ const AccountScreen = ({ navigation, account, accountDetails }) => {
                                 titleStyle={styles.listItemTitile}
                                 title={retailName}
                                 subtitle={<View style={{ flexDirection: 'column' }}>
-                                    <Text style={styles.listItemSubtitleProfile}>+601161177870</Text>
+                                    <Text style={styles.listItemSubtitleProfile}>{mobile}</Text>
                                     <Text style={styles.listItemSubtitleProfile}>{email}</Text>
                                 </View>}
                                 leftAvatar={<View>
                                     <FastImage
-                                        source={{ uri: "https://myvalue.my/uploads/branch/6F573EEA5B8A52CC5B0767FD521EC302/images/o_1dgk51rig10d2186oc1j12d31m5th.jpg" }}
+                                        source={{ uri: image }}
                                         style={styles.centering}
                                         resizeMode={FastImage.resizeMode.cover}
 
@@ -220,7 +262,7 @@ const AccountScreen = ({ navigation, account, accountDetails }) => {
                                 <Text style={styles.paymentText}>Support</Text>
                             </View>
                             <View style={[styles.itemContainer, styles.paymentMethodChild]}>
-                                <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('VisitHelpCente')}>
+                                {/* <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('VisitHelpCente')}>
 
                                     <ListItem
                                         title="Visit Help Centre"
@@ -232,7 +274,7 @@ const AccountScreen = ({ navigation, account, accountDetails }) => {
                                         />}
                                         bottomDivider
                                     />
-                                </TouchableOpacity>
+                                </TouchableOpacity> */}
                                 <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('ContactUS')}>
 
                                     <ListItem
@@ -269,7 +311,7 @@ const AccountScreen = ({ navigation, account, accountDetails }) => {
                                     </TouchableOpacity>}
                                     bottomDivider
                                 />
-                                <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('BankAccount')}>
+                                {/* <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('BankAccount')}>
                                     <ListItem
                                         title="Bank account information"
                                         titleStyle={styles.paymentMethodTitle}
@@ -280,7 +322,7 @@ const AccountScreen = ({ navigation, account, accountDetails }) => {
                                         />}
 
                                     />
-                                </TouchableOpacity>
+                                </TouchableOpacity> */}
                             </View>
                             <View style={[styles.itemContainer, styles.listItemLogOut]}>
                                 <TouchableOpacity activeOpacity={0.5} onPress={() => refRBSheet.current.open()}>
@@ -295,7 +337,7 @@ const AccountScreen = ({ navigation, account, accountDetails }) => {
                                         bottomDivider
                                     />
                                 </TouchableOpacity>
-                                <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('Logout')}>
+                                <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('Logout', { branch: account[0].merchant.branches[0], image: account[0].merchant.image.url})}>
                                     <ListItem
                                         title="Logout"
                                         titleStyle={styles.paymentMethodTitle}
@@ -346,9 +388,7 @@ const AccountScreen = ({ navigation, account, accountDetails }) => {
                                     borderRadius: 5,
                                     backgroundColor: "#D2000D",
                                 }} title="Got it" onPress={() => {
-                                    setIsSwitchOn(!isSwitchOn)
-
-                                    setVisible(!visible)
+                                    handleUpdateBranchStatus()
                                 }}
                             />
                         </View>
@@ -456,8 +496,8 @@ const styles = StyleSheet.create({
 
 
 
-const mapStateToProps = ({ account }) => {
-    return { account }
+const mapStateToProps = ({ account, updateTime }) => {
+    return { account, updateTime }
 }
 
-export default connect(mapStateToProps, { accountDetails })(AccountScreen);
+export default connect(mapStateToProps, { accountDetails, updateMerchantTime })(AccountScreen);
