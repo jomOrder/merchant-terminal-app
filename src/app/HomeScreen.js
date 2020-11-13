@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { Dimensions, StyleSheet, View, Image, ImageBackground, Text, ScrollView, RefreshControl, SafeAreaView } from 'react-native'
+import { Dimensions, StyleSheet, View, Image, ImageBackground, Text, TouchableOpacity, ScrollView, RefreshControl, SafeAreaView } from 'react-native'
 const screenHeight = Math.round(Dimensions.get('window').height);
 const screenWidth = Math.round(Dimensions.get('window').width);
 import { connect } from 'react-redux';
@@ -8,8 +8,14 @@ import { TouchableNativeFeedback } from 'react-native-gesture-handler';
 import FastImage from 'react-native-fast-image'
 import ContentLoader, { Rect } from 'react-content-loader/native'
 import AsyncStorage from '@react-native-community/async-storage';
+import {
+    USBPrinter,
+    NetPrinter,
+    BLEPrinter,
+} from "react-native-thermal-receipt-printer";
+import { BluetoothManager, BluetoothEscposPrinter, BluetoothTscPrinter } from 'react-native-bluetooth-escpos-printer';
 
-let imageUrl = 'https://s3-ap-southeast-1.amazonaws.com/api.thejomorder.com/mobile-assets/background_image.jpg'
+let imageUrl = 'https://s3-ap-southeast-1.amazonaws.com/assets.jomorder.com.my/mobile-assets/Background+Image.png'
 
 const MyLoader = () => (
     <View style={{ paddingLeft: 30 }}>
@@ -33,6 +39,13 @@ const HomeScreen = ({ navigation, merchantBranch, viewMerchantBranch }) => {
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
+    const [printers, setPrinters] = useState([]);
+    const [boundAddress, setBoundAddress] = useState();
+    const [currentPrinter, setCurrentPrinter] = useState();
+
+    const [pairedDs, setPairedDs] = useState();
+    const [foundDs, setFoundDs] = useState();
+
 
     const wait = (timeout) => {
         return new Promise(resolve => {
@@ -55,6 +68,7 @@ const HomeScreen = ({ navigation, merchantBranch, viewMerchantBranch }) => {
     }, [refreshing]);
 
 
+
     /**
      * 
      * @param {number} index 
@@ -66,12 +80,101 @@ const HomeScreen = ({ navigation, merchantBranch, viewMerchantBranch }) => {
         viewMerchantBranch(branch_key);
     }
 
+    const connectPrinter = (printer) => {
+        //connect printer
+        BLEPrinter.connectPrinter(printer.inner_mac_address).then(
+            setCurrentPrinter,
+            error => console.warn(error))
+    }
+
+    const printTextTest = () => {
+        currentPrinter && BLEPrinter.printText("<C>sample text</C>\n");
+    }
+
+    const printBillTest = () => {
+        currentPrinter && BLEPrinter.printBill("<C>sample bill</C>");
+    }
+
+    const test = async () => {
+        await BluetoothEscposPrinter.printText("JomOrder\n\r", {
+            encoding: 'GBK',
+            codepage: 0,
+            widthtimes: 0,
+            heigthtimes: 0,
+            fonttype: 1
+        });
+        await BluetoothEscposPrinter.printText("Date：xsd201909210000001\n\r", {});
+        await BluetoothEscposPrinter.printText("Price：" + (new Date()) + "\n\r", {});
+        await BluetoothEscposPrinter.printText("Test：18664896621\n\r", {});
+        await BluetoothEscposPrinter.printText("--------------------------------\n\r", {});
+        await BluetoothEscposPrinter.printText("Total\n\r", {});
+        await BluetoothEscposPrinter.cutOnePoint();
+        await BluetoothEscposPrinter.openDrawer(0, 250, 250);
+    }
+
     useEffect(() => {
         if (!mounted.current) {
             // do componentDidMount logic
+            // BLEPrinter.init().then(() => {
+            //     BLEPrinter.getDeviceList().then(setPrinters);
+            // });
             setTimeout(() => {
                 setLoading(false)
             }, 700)
+
+            BluetoothManager.isBluetoothEnabled().then((enabled) => {
+                console.log(enabled) // enabled ==> true /false
+            }, (err) => {
+                console.log(err)
+            });
+            BluetoothManager.enableBluetooth().then((r) => {
+                var paired = [];
+                if (r && r.length > 0) {
+                    for (var i = 0; i < r.length; i++) {
+                        try {
+                            paired.push(JSON.parse(r[i])); // NEED TO PARSE THE DEVICE INFORMATION
+                            setCurrentPrinter(JSON.parse(r[0]).address)
+                            console.log("currentPrinter: ", JSON.parse(r[0]).address)
+                        } catch (e) {
+                            //ignore
+                        }
+                    }
+                }
+                setPrinters(paired);
+                console.log(JSON.stringify(paired))
+            }, (err) => {
+                alert(err)
+            });
+            BluetoothManager.scanDevices()
+                .then((s) => {
+                    var ss = JSON.parse(s);//JSON string
+                    console.log(ss);
+                    setPrinters(ss);
+                    // setPairedDs(pairedDs.cloneWithRows(ss.paired || []))
+                    // setFoundDs(foundDs.cloneWithRows(ss.found || []))
+                    // console.log(pairedDs)
+                    // console.log(foundDs)
+
+                    console.log("ss.paired", ss.paired)
+                    console.log("ss.found", ss.found)
+
+                    BluetoothManager.connect(ss.paired[1].address) // the device address scanned.
+                        .then(async (s) => {
+                            console.log("s: ", s)
+
+
+
+
+                        }, (e) => {
+                            console.log(e);
+                        })
+
+                }, (er) => {
+                    setLoading(false)
+                    console.log('error' + JSON.stringify(er));
+                });
+
+
 
             // getMerchantBranch();
             mounted.current = true;
@@ -112,9 +215,24 @@ const HomeScreen = ({ navigation, merchantBranch, viewMerchantBranch }) => {
                             </View>}
                         </ImageBackground>
                     </View>
+                    {/* <View style={styles.container}>
+                        {
+                            printers.map(printer => (
+                                <TouchableOpacity key={printer.inner_mac_address} onPress={() => connectPrinter(printer)}>
+                                    <Text>{`device_name: ${printer.device_name}, inner_mac_address: ${printer.inner_mac_address}`}</Text>
+                                </TouchableOpacity>
+                            ))
+                        }
+                        <TouchableOpacity onPress={printTextTest}>
+                            <Text>Print Text</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={printBillTest}>
+                            <Text>Print Bill Text</Text>
+                        </TouchableOpacity>
+                    </View> */}
                     <View style={styles.container}>
                         <View style={[styles.wrapper, { width: 125, }]}>
-                            <TouchableNativeFeedback background={TouchableNativeFeedback.Ripple('#E02D2D', true)} onPress={() => navigation.navigate('Tab', { screen: 'Orders' })}>
+                            <TouchableNativeFeedback background={TouchableNativeFeedback.Ripple('#E02D2D', true)} onPress={() => test()}>
                                 <View style={[styles.box, { justifyContent: 'center' }]}>
                                     <View style={{ alignSelf: 'center' }}>
                                         <View style={{}}>

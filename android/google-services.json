@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "697547950440",
+    "firebase_url": "https://jomorder-293912.firebaseio.com",
+    "project_id": "jomorder-293912",
+    "storage_bucket": "jomorder-293912.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:697547950440:android:9dda83421878a936ca2edd",
+        "android_client_info": {
+          "package_name": "com.jomordermerchantapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "697547950440-v9i2elepohgioreqaqf5tduer7f2milt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.jomordermerchantapp",
+            "certificate_hash": "238772078727da1fb6bc4105aafd89419e993fd7"
+          }
+        },
+        {
+          "client_id": "697547950440-spt37dhlorck2vo96cmmkq6uqjdntg0q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAebHbwvWnh-Uf-jqBZAwmJVkPSC2RUqac"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "697547950440-spt37dhlorck2vo96cmmkq6uqjdntg0q.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

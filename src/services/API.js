@@ -2,7 +2,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-community/async-storage';
 const API = axios.create();
 
-API.defaults.baseURL = 'https://api-core.thejomorder.com/api'
+API.defaults.baseURL = 'https://api-core.jomorder.com.my/api'
 API.interceptors.request.use(
   async config => {
     const token = await AsyncStorage.getItem('token');
