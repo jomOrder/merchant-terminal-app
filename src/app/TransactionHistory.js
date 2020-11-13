@@ -5,9 +5,7 @@ import {
     StyleSheet,
     Dimensions,
     View,
-    ScrollView,
     Text,
-    AsyncStorage,
     FlatList,
     TouchableOpacity,
     BackHandler,
@@ -15,6 +13,7 @@ import {
     SafeAreaView
 } from 'react-native';
 
+import AsyncStorage from '@react-native-community/async-storage';
 import { ListItem, Button, CheckBox } from 'react-native-elements'
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import Moment from 'react-moment';
@@ -41,6 +40,7 @@ const MyLoader = () => (
 
 const TransactionHistory = ({ navigation, transactions, getTransactionHistory }) => {
     const refRBSheet = useRef();
+    const mounted = useRef();
     const [spinner, setSpinner] = useState(false);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
@@ -125,14 +125,25 @@ const TransactionHistory = ({ navigation, transactions, getTransactionHistory })
         navigation.goBack();
     }
     useEffect(() => {
-
-        setBranchKey();
-        setTimeout(() => {
-            setLoading(false)
-        }, 600)
-        setInterval(() => {
+        if (!mounted.current) {
+            // do componentDidMount logic
+            setTimeout(() => {
+                setLoading(false)
+            }, 600)
             setBranchKey();
-        }, 8000);
+            mounted.current = true;
+        } else {
+            // if (transactions.length === 0)
+
+            // do componentDidUpdate logic
+            // const interval = setInterval(() => {
+            //     setBranchKey();
+            // }, 10000);
+
+            // return () => clearInterval(interval)
+
+        }
+
         // BackHandler.addEventListener('hardwareBackPress', handlegoBackBtn)
     }, [transactions.length, loading]);
 
@@ -140,15 +151,15 @@ const TransactionHistory = ({ navigation, transactions, getTransactionHistory })
         <SafeAreaView style={styles.viewScreen}>
             <View>
                 <FlatList
-                    ListHeaderComponent={
-                        <View style={styles.itemContainer}>
-                            <ListItem
-                                titleStyle={styles.listItemTitile}
-                                title="Today, June 18"
-                                bottomDivider
-                            />
-                        </View>
-                    }
+                    // ListHeaderComponent={
+                    //     <View style={styles.itemContainer}>
+                    //         <ListItem
+                    //             titleStyle={styles.listItemTitile}
+                    //             title="Today, June 18"
+                    //             bottomDivider
+                    //         />
+                    //     </View>
+                    // }
                     ListEmptyComponent={<View style={{
                         alignSelf: 'center',
                         position: 'absolute',
@@ -168,7 +179,7 @@ const TransactionHistory = ({ navigation, transactions, getTransactionHistory })
                     data={transactions}
                     renderItem={item => renderTransactions(item)}
                     keyExtractor={item => item.id.toString(2)}
-                    
+
                 />
             </View>
         </SafeAreaView>

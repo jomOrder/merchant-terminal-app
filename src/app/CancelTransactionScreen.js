@@ -1,28 +1,25 @@
 
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, forwardRef } from 'react';
 import {
     StyleSheet,
     Dimensions,
     View,
     ScrollView,
     Text,
-    AsyncStorage,
     FlatList,
     TouchableOpacity,
     BackHandler,
     RefreshControl,
     SafeAreaView
 } from 'react-native';
-
+import AsyncStorage from '@react-native-community/async-storage';
 import { ListItem, Button, CheckBox } from 'react-native-elements'
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import Moment from 'react-moment';
 const screenHeight = Math.round(Dimensions.get('window').height);
 const screenWidth = Math.round(Dimensions.get('window').width);
-import { connect } from 'react-redux';
 import ContentLoader, { Rect, Circle } from 'react-content-loader/native'
-import { getTransactionCancelled } from '../actions'
 
 const MyLoader = () => (
     <View style={{ paddingLeft: 20, paddingRight: 20 }}>
@@ -39,8 +36,10 @@ const MyLoader = () => (
 );
 
 
-const CancelTransactionScreen = ({ navigation, transactionsCancelled, getTransactionCancelled }) => {
+const CancelTransactionScreen = forwardRef(({ transactionsCancelled = [], navigation }, ref) => {
     const refRBSheet = useRef();
+    const mounted = useRef();
+
     const [spinner, setSpinner] = useState(false);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
@@ -62,13 +61,6 @@ const CancelTransactionScreen = ({ navigation, transactionsCancelled, getTransac
             setLoading(false)
         });
     }, [refreshing]);
-
-
-    const setBranchKey = async () => {
-        const branch_key = await AsyncStorage.getItem('branch_key');
-        getTransactionCancelled(branch_key);
-
-    }
 
     const renderTransactions = ({ item, index }) => {
         return (
@@ -125,14 +117,15 @@ const CancelTransactionScreen = ({ navigation, transactionsCancelled, getTransac
         navigation.goBack();
     }
     useEffect(() => {
-
-        setBranchKey();
-        setTimeout(() => {
-            setLoading(false)
-        }, 600)
-        setInterval(() => {
-            setBranchKey();
-        }, 8000);
+        if (!mounted.current) {
+            // do componentDidMount logic
+            setTimeout(() => {
+                setLoading(false)
+            }, 600)
+            mounted.current = true;
+        } else {
+            // do componentDidUpdate logic
+        }
         // BackHandler.addEventListener('hardwareBackPress', handlegoBackBtn)
     }, [transactionsCancelled.length, loading]);
 
@@ -140,15 +133,15 @@ const CancelTransactionScreen = ({ navigation, transactionsCancelled, getTransac
         <SafeAreaView style={styles.viewScreen}>
             <View>
                 <FlatList
-                    ListHeaderComponent={
-                        <View style={styles.itemContainer}>
-                            <ListItem
-                                titleStyle={styles.listItemTitile}
-                                title="Today, June 18"
-                                bottomDivider
-                            />
-                        </View>
-                    }
+                    // ListHeaderComponent={
+                    //     <View style={styles.itemContainer}>
+                    //         <ListItem
+                    //             titleStyle={styles.listItemTitile}
+                    //             title="Today, June 18"
+                    //             bottomDivider
+                    //         />
+                    //     </View>
+                    // }
                     ListEmptyComponent={<View style={{
                         alignSelf: 'center',
                         position: 'absolute',
@@ -176,7 +169,7 @@ const CancelTransactionScreen = ({ navigation, transactionsCancelled, getTransac
 
 
     )
-}
+});
 
 
 const styles = StyleSheet.create({
@@ -228,10 +221,5 @@ const styles = StyleSheet.create({
     },
 });
 
-
-const mapStateToProps = ({ transactionsCancelled }) => {
-    return { transactionsCancelled }
-}
-
-export default connect(mapStateToProps, { getTransactionCancelled })(CancelTransactionScreen);
+export default CancelTransactionScreen;
 

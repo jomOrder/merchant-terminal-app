@@ -11,10 +11,8 @@ export const UPDATE_BRANCH_BALANCE_ERR = 'UPDATE_BRANCH_BALANCE_ERR';
 export const acceptOrderTransaction = (branch_key, transactionID) => async dispatch => {
 
     const response = await API.acceptTransaction(branch_key, transactionID);
-    console.log(response)
     const { data } = response;
     const { err, message } = data;
-    console.log(data)
     try {
         if (err === 0) dispatch({
             type: ACCEPT_TRANSACTION,
@@ -41,6 +39,7 @@ export const updateBranchStatusBalance = (branch_key, transactionID) => async di
     const response = await API.updateBranchBalance(branch_key, transactionID);
     const { data } = response;
     const { err, message } = data;
+    console.log("data: ", data);
     try {
         if (err === 0) dispatch({
             type: UPDATE_BRANCH_BALANCE,
@@ -48,6 +47,7 @@ export const updateBranchStatusBalance = (branch_key, transactionID) => async di
         });
 
     } catch (e) {
+        console.log(e.message)
         dispatch({
             type: UPDATE_BRANCH_BALANCE_ERR,
             payload: { err: 500, message: e.message }

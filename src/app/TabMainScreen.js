@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import {
-    Dimensions, StyleSheet, View, Image, Text, AsyncStorage
+    TouchableOpacity, StyleSheet, View, Image
 } from 'react-native';
+import FastImage from 'react-native-fast-image'
+
+import AsyncStorage from '@react-native-community/async-storage';
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack'
@@ -188,21 +191,9 @@ const MoreStackScreen = () => {
 
 
 const TabMainScreen = ({ route, navigation }) => {
-    const [count, setCount] = useState(0)
-    
-    const handleOrdersCount = async () => {
-        const items = await AsyncStorage.getItem('orders');
-        setCount(items)
-    }
     useEffect(() => {
-        setInterval(() => {
-            handleOrdersCount()
-
-        }, 4000)
-        //let orderLength = route.state.routes[0].params.count
-        // setCount(orderLength);
         // if(route.name == 'Orders') return () => BackHandler.removeEventListener('hardwareBackPress', () => true)
-    }, [count]);
+    }, []);
     return (
         <Tab.Navigator initialRouteName={"Home"} screenOptions={({ route }) => ({
 
@@ -217,16 +208,30 @@ const TabMainScreen = ({ route, navigation }) => {
                     iconName = focused ? 'list-alt' : 'list-alt';
                     return (
                         <View style={{}}>
-                            <View style={{ zIndex: 10000, position: 'absolute', bottom: 8, left: 10 }}>
+                            {/* <View style={{ zIndex: 10000, position: 'absolute', bottom: 8, left: 10 }}>
                                 <Badge value={count} textStyle={{ fontSize: 10, fontWeight: "bold" }} badgeStyle={{ backgroundColor: "#E02D2D", width: 4, height: 16 }} />
-                            </View>
+                            </View> */}
                             <Icon
                                 color={color}
                                 size={17}
                                 name={iconName} />
                         </View>
                     )
-                } else if (route.name === 'Inbox') {
+                }
+                else if (route.name === 'ScanQRCode') {
+                    return (
+                        <TouchableOpacity activeOpacity={0.5} onPress={() => console.debug("Scan")}>
+                            <View>
+                                <FastImage
+                                    source={require('../../assets/scan.png')}
+                                    style={styles.centeringScanIcon}
+                                    resizeMode={FastImage.resizeMode.cover}
+                                />
+                            </View>
+                        </TouchableOpacity>
+                    )
+                }
+                else if (route.name === 'Inbox') {
                     iconName = focused ? 'comment-alt' : 'comment-alt';
                     return (
                         <View style={{}}>
@@ -270,8 +275,11 @@ const TabMainScreen = ({ route, navigation }) => {
         }}>
             <Tab.Screen name="Home" component={HomeStackScreen} />
             <Tab.Screen name="Orders" component={OrdersStackScreen} />
+            <Tab.Screen name="ScanQRCode" options={{
+                tabBarLabel: '',
+            }} component={OrdersStackScreen} />
             <Tab.Screen name="Menus" component={MenusStackScreen} />
-            <Tab.Screen name="Inbox" component={InboxStackScreen} />
+            {/* <Tab.Screen name="Inbox" component={InboxStackScreen} /> */}
             <Tab.Screen name="More" component={MoreStackScreen} />
         </Tab.Navigator>
     );
@@ -285,6 +293,16 @@ const styles = StyleSheet.create({
         resizeMode: 'cover',
         justifyContent: 'center'
     },
+    centeringScan: {
+        width: 130,
+        height: 40,
+        justifyContent: 'center'
+    },
+    centeringScanIcon: {
+        width: 90,
+        height: 90,
+    },
+
 });
 
 

@@ -1,23 +1,27 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { Dimensions, StyleSheet, FlatList, View, ScrollView, SafeAreaView, Text, TouchableOpacity, AsyncStorage, RefreshControl } from 'react-native'
-import Modal from 'react-native-modal';
-import Icon from 'react-native-vector-icons/FontAwesome5';
-import Moment from 'react-moment';
-import { CommonActions } from '@react-navigation/native'
-import { Button, ListItem } from 'react-native-elements'
+import React, { useEffect, useState, useCallback, useRef } from 'react';
+import { Dimensions, StyleSheet, View, SafeAreaView, TouchableOpacity } from 'react-native'
 const screenHeight = Math.round(Dimensions.get('window').height);
 const screenWidth = Math.round(Dimensions.get('window').width);
 import 'moment-timezone';
-import { TabView, SceneMap } from 'react-native-tab-view';
+import { TabView } from 'react-native-tab-view';
 import Animated from 'react-native-reanimated';
 import ReviewOrderScreen from './ReviewOrderScreen';
 import CancelTransactionScreen from './CancelTransactionScreen';
-import AcceptTransactionScreen from './AcceptTransactionScreen';
+import AcceptTransaction from './AcceptTransaction';
+import { getBranchOrders, getTransactionAccepted, getTransactionCancelled } from '../actions'
+import AsyncStorage from '@react-native-community/async-storage';
+import { connect } from 'react-redux';
+import NotificationSounds, { playSampleSound } from 'react-native-notification-sounds';
+
 const initialLayout = { width: Dimensions.get('window').width };
 
-const MyOrderScreen = ({ route, branch, navigation }) => {
+const MyOrderScreen = ({ route, orders, transactionsCancelled, transactionsAccepted, navigation, getBranchOrders, getTransactionAccepted, getTransactionCancelled}) => {
+    const mounted = useRef();
+    const ref = useRef();
+
     const [visible, setVisible] = useState(false);
     const [countDown, setCountDown] = useState(30);
+    const [ordersList, setOrdersList] = useState(0);
     const [index, setIndex] = useState(0);
     const [routes] = useState([
         { key: 'review', title: 'New Order' },
@@ -43,20 +47,39 @@ const MyOrderScreen = ({ route, branch, navigation }) => {
         });
     }, [refreshing]);
 
+    const setBranchKey = async () => {
+        const branch_key = await AsyncStorage.getItem('branch_key');
+        getBranchOrders(branch_key);
+        const ordersList = await AsyncStorage.getItem('orders');
+        setOrdersList(ordersList)
+    }
+
+    const handleOrderNotification = async () => {
+        let list = orders.length.toString();
+        await AsyncStorage.setItem('orders', list)
+        NotificationSounds.getNotifications().then(soundsList => {
+            // console.warn('SOUNDS', JSON.stringify(soundsList));
+            playSampleSound(soundsList[43]);
+        });
+    }
+
+    const handleAcceptScrolldown = () => {
+        console.log("Hello")
+    } 
 
     const renderScene = ({ route }) => {
         switch (route.key) {
             case 'review':
                 return (
-                    <ReviewOrderScreen navigation={navigation} />
+                    <ReviewOrderScreen ref={ref} orders={orders} navigation={navigation} />
                 );
             case 'completed':
                 return (
-                    <AcceptTransactionScreen navigation={navigation} />
+                    <AcceptTransaction ref={ref} handleAcceptScrolldown={handleAcceptScrolldown} transactionsAccepted={transactionsAccepted} navigation={navigation} />
                 );
             case 'cancelled':
                 return (
-                    <CancelTransactionScreen navigation={navigation} />
+                    <CancelTransactionScreen ref={ref} transactionsCancelled={transactionsCancelled} navigation={navigation} />
                 );
             default:
                 return null;
@@ -102,13 +125,33 @@ const MyOrderScreen = ({ route, branch, navigation }) => {
         if (countDown === 1) setVisible(false)
     }
 
+    const getAllTransactions = async () => {
+        const branch_key = await AsyncStorage.getItem('branch_key');
+        getTransactionAccepted(branch_key)
+        getTransactionCancelled(branch_key)
+    }
+
     useEffect(() => {
+        if (!mounted.current) {
+            // do componentDidMount logic
+            setBranchKey();
+            mounted.current = true;
+        } else {
+            getAllTransactions()
+            console.log("orders: ", orders)
+            if (orders.length >= ordersList && orders.length > 0) handleOrderNotification()
+            const interval = setInterval(() => {
+                setBranchKey();
+            }, 10000);
+            return () => clearInterval(interval)
+        }
+      
         // navigation.dispatch(CommonActions.setParams({ count: orders.length }));
         // setTimeout(() => {
         //     if (countDown > 0) handleCountDown();
         // }, 1000)
 
-    }, [countDown]);
+    }, [orders.length, transactionsCancelled.length, transactionsAccepted.length, countDown, mounted.current]);
     return (
         <SafeAreaView style={styles.viewScreen}>
             <TabView
@@ -160,58 +203,9 @@ const styles = StyleSheet.create({
 
 });
 
-export default MyOrderScreen;
 
+const mapStateToProps = ({ orders, transactionsCancelled, transactionsAccepted}) => {
+    return { orders, transactionsCancelled, transactionsAccepted }
+}
 
-
-
-{/* <Modal isVisible={visible}>
-<View style={{ flex: 1, }}>
-    <View style={{
-        alignItems: 'center',
-        justifyContent: 'center', height: "100%"
-    }}>
-        <View style={{ width: 90, height: 90, borderWidth: 4, borderColor: "#E02D2D", borderRadius: 50 }}>
-            <Text style={{
-                textAlign: 'center', alignItems: 'center',
-                justifyContent: 'center', padding: 30, color: "#FFF", fontWeight: "bold", fontSize: 19
-            }}>{countDown}</Text>
-        </View>
-    </View>
-    <View style={{
-        position: 'absolute',
-        bottom: 0,
-        padding: 15,
-        alignSelf: 'center',
-        width: screenWidth
-    }}>
-        <Button
-            titleStyle={styles.skipBtn}
-            buttonStyle={{
-                height: 50,
-                marginTop: 20,
-                backgroundColor: "#E02D2D",
-            }} title="ACCEPT" onPress={() => {
-                setVisible(false)
-            }}></Button>
-    </View>
-</View>
-</Modal> */}
-
-
-{/* <ScrollView refreshControl={
-                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-            }
-                contentContainerStyle={styles.scrollView}
-                nestedScrollEnabled={true}
-                scrollEnabled={true}
-                showsVerticalScrollIndicator={false}>
-                
-            </ScrollView> */}
-{/* <TabView
-                initialLayout={initialLayout}
-                navigationState={{ index, routes }}
-                renderScene={renderScene}
-                renderTabBar={renderTabBar}
-                onIndexChange={setIndex}
-            /> */}
+export default connect(mapStateToProps, { getBranchOrders, getTransactionAccepted, getTransactionCancelled })(MyOrderScreen);

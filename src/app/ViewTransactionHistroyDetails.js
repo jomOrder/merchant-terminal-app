@@ -5,13 +5,11 @@ import {
     StyleSheet,
     Dimensions,
     View,
-    ScrollView,
     Text,
     FlatList,
-    AsyncStorage,
-    TouchableOpacity
 } from 'react-native';
 import { ListItem, Button } from 'react-native-elements'
+import AsyncStorage from '@react-native-community/async-storage';
 const screenHeight = Math.round(Dimensions.get('window').height);
 const screenWidth = Math.round(Dimensions.get('window').width);
 import Icon from 'react-native-vector-icons/FontAwesome5';

@@ -7,6 +7,9 @@ export const VIEW_MERCHANT_BRANCH = 'VIEW_MERCHANT_BRANCH';
 export const VIEW_MERCHANT_BRANCH_NOT_FOUND = 'VIEW_MERCHANT_BRANCH_NOT_FOUND';
 
 
+export const MERCHANT_BRANCH_UPDATED = 'MERCHANT_BRANCH_UPDATED';
+
+
 export const getMerchantBranches = () => async dispatch => {
     
     const response = await API.getMerchantBranches(0);
@@ -39,5 +42,16 @@ export const viewMerchantBranch = (branch_key) => async dispatch => {
     if(err === 25) dispatch({
         type: VIEW_MERCHANT_BRANCH_NOT_FOUND,
         payload: { err: 25, message }
+    });
+};
+
+export const updateMerchantTime = (branch_key, status) => async dispatch => {
+    
+    const response = await API.updateMerchantStatus(branch_key, status);
+    const { data } = response;
+    const { message, err } = data;
+    if(err === 0) dispatch({
+        type: MERCHANT_BRANCH_UPDATED,
+        payload: { err, message }
     });
 };

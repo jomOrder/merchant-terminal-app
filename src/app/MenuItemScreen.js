@@ -3,14 +3,11 @@ import {
     StyleSheet,
     View,
     Dimensions,
-    Image,
     Text,
-    ScrollView,
     FlatList,
     SafeAreaView,
     TouchableOpacity,
     RefreshControl,
-    AsyncStorage,
     BackHandler
 } from 'react-native';
 import { ListItem, Badge } from 'react-native-elements'
@@ -52,6 +49,7 @@ const MenuItemScreen = ({ route, navigation }) => {
         setLoading(true);
         /**
          * Insert Code here to fetch new Data
+         * 
          */
         wait(1000).then(() => {
             setRefreshing(false)
@@ -65,7 +63,7 @@ const MenuItemScreen = ({ route, navigation }) => {
                 <TouchableOpacity activeOpacity={0.7} key={index}>
                     <ListItem
                         containerStyle={{
-                            height: 80,
+                            height: 100,
                             borderBottomColor: "rgba(221,221,221,0.4)",
                             borderBottomWidth: 1
                         }}
@@ -106,7 +104,7 @@ const MenuItemScreen = ({ route, navigation }) => {
         // })
         setTimeout(() => {
             setLoading(false)
-        }, 1000)
+        }, 200)
     }, [loading]);
     return (
         <SafeAreaView style={styles.viewScreen}>
@@ -158,7 +156,7 @@ const styles = StyleSheet.create({
         fontWeight: "300"
     },
     imgLeftAvatar: {
-        marginRight: 20,
+        marginRight: 10,
         width: 70,
         height: 70,
         borderRadius: 5,

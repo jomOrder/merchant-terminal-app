@@ -1,17 +1,19 @@
 {
-  "name": "JomOrderMerchant",
+  "name": "jom-order-merchant",
   "version": "0.0.1",
   "private": true,
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
-    "start": "react-native start",
+    "start": "react-native start --reset-cache",
     "test": "jest",
     "lint": "eslint ."
   },
   "dependencies": {
+    "@react-native-community/async-storage": "^1.12.0",
     "@react-native-community/masked-view": "^0.1.10",
     "@react-native-community/netinfo": "^5.9.2",
+    "@react-native-community/toolbar-android": "0.1.0-rc.2",
     "@react-native-community/viewpager": "^4.0.1",
     "@react-navigation/bottom-tabs": "^5.5.2",
     "@react-navigation/material-top-tabs": "^5.2.10",
@@ -27,6 +29,7 @@
     "react-moment": "^0.9.7",
     "react-native": "0.62.2",
     "react-native-actions-sheet": "^0.3.0",
+    "react-native-bluetooth-escpos-printer": "git+https://github.com/januslo/react-native-bluetooth-escpos-printer.git",
     "react-native-elements": "^2.0.2",
     "react-native-fast-image": "^8.1.5",
     "react-native-flash-message": "^0.1.15",
@@ -42,7 +45,8 @@
     "react-native-sunmi-inner-printer": "^0.1.6",
     "react-native-svg": "^12.1.0",
     "react-native-tab-view": "^2.14.4",
-    "react-native-vector-icons": "^6.6.0",
+    "react-native-thermal-receipt-printer": "^1.1.4",
+    "react-native-vector-icons": "7.0.0",
     "react-redux": "^7.2.0",
     "redux": "^4.0.5",
     "redux-thunk": "^2.3.0"
@@ -53,6 +57,7 @@
     "@react-native-community/eslint-config": "^2.0.0",
     "babel-jest": "^26.0.1",
     "eslint": "^7.2.0",
+    "eslint-plugin-react-hooks": "^4.1.2",
     "jest": "^26.0.1",
     "metro-react-native-babel-preset": "^0.59.0",
     "react-test-renderer": "16.11.0"

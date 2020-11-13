@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef, forwardRef } from 'react';
 import {
     Dimensions,
     StyleSheet,
@@ -7,24 +7,24 @@ import {
     SafeAreaView,
     Text,
     TouchableOpacity,
-    AsyncStorage,
     RefreshControl,
 } from 'react-native'
 
+import AsyncStorage from '@react-native-community/async-storage';
 import Modal from 'react-native-modal';
-import { connect } from 'react-redux';
-import { getBranchOrders } from '../actions'
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import Moment from 'react-moment';
 import { CommonActions } from '@react-navigation/native'
 import { ListItem } from 'react-native-elements'
 import NotificationSounds, { playSampleSound } from 'react-native-notification-sounds';
-import SunmiInnerPrinter from 'react-native-sunmi-inner-printer';
 const screenHeight = Math.round(Dimensions.get('window').height);
 const screenWidth = Math.round(Dimensions.get('window').width);
 
-const ReviewOrderScreen = ({ route, branch, navigation, orders, getBranchOrders }) => {
+const ReviewOrderScreen = forwardRef(({ orders, navigation }, ref) => {
+    const mounted = useRef();
     const [visible, setVisible] = useState(false);
+    const [ordersList, setOrdersList] = useState(0);
+
     const [countDown, setCountDown] = useState(30);
     const [refreshing, setRefreshing] = useState(false);
 
@@ -47,8 +47,9 @@ const ReviewOrderScreen = ({ route, branch, navigation, orders, getBranchOrders 
 
     const setBranchKey = async () => {
         const branch_key = await AsyncStorage.getItem('branch_key');
-        handleOrderList()
         getBranchOrders(branch_key);
+        const ordersList = await AsyncStorage.getItem('orders');
+        setOrdersList(ordersList)
     }
     const handleOrderNotification = async () => {
         let list = orders.length.toString();
@@ -59,17 +60,16 @@ const ReviewOrderScreen = ({ route, branch, navigation, orders, getBranchOrders 
         });
     }
 
-    const handleOrderList = async () => {
-        const ordersList = await AsyncStorage.getItem('orders');
-        if (orders.length > ordersList) handleOrderNotification()
-    }
-
     const handleCountDown = () => {
         let count = countDown - 1;
         setCountDown(count);
         if (countDown === 1) setVisible(false)
     }
 
+    const getAcceptedTransaction = async () => {
+        const branch_key = await AsyncStorage.getItem('branch_key');
+        getTransactionAccepted(branch_key)
+    }
 
     const renderOrders = ({ item, index }) => {
         return (
@@ -122,17 +122,9 @@ const ReviewOrderScreen = ({ route, branch, navigation, orders, getBranchOrders 
     };
 
     useEffect(() => {
+        console.log("orders: ", orders)
+    }, [orders.length])
 
-        setBranchKey();
-        // navigation.dispatch(CommonActions.setParams({ count: orders.length }));
-        setInterval(() => {
-            setBranchKey();
-        }, 1000);
-        // setTimeout(() => {
-        //     if (countDown > 0) handleCountDown();
-        // }, 1000)
-
-    }, [orders.length, countDown]);
     return (
         <SafeAreaView style={styles.viewScreen}>
             <View style={{}}>
@@ -147,12 +139,12 @@ const ReviewOrderScreen = ({ route, branch, navigation, orders, getBranchOrders 
                     legacyImplementation={false}
                     data={orders}
                     renderItem={item => renderOrders(item)}
-                    keyExtractor={item => item.transactionID}
+                    keyExtractor={item => item.transactionID.toString()}
                 />
             </View>
         </SafeAreaView>
     );
-}
+});
 
 
 const styles = StyleSheet.create({
@@ -192,8 +184,4 @@ const styles = StyleSheet.create({
 
 });
 
-const mapStateToProps = ({ orders }) => {
-    return { orders }
-}
-
-export default connect(mapStateToProps, { getBranchOrders })(ReviewOrderScreen);
+export default ReviewOrderScreen;
