@@ -17,8 +17,10 @@ import { Portal, Provider } from 'react-native-paper';
 import Spinner from 'react-native-loading-spinner-overlay';
 import { CommonActions } from '@react-navigation/native'
 import FastImage from 'react-native-fast-image'
+import { useDispatch } from 'react-redux'
 
 const Logout = ({ route, navigation }) => {
+    let dispatch = useDispatch();
     const [spinner, setSpinner] = useState(false);
     const { branch, image } = route.params;
     const logout = async () => {
@@ -33,10 +35,12 @@ const Logout = ({ route, navigation }) => {
         setSpinner(true);
         setTimeout(() => {
             setSpinner(false);
+            dispatch({ type: 'CLEAR_USER' });
+
             navigation.dispatch(
                 CommonActions.reset({
                     index: 0,
-                    routes: [{ name: "auth" },],
+                    routes: [{ name: "Auth" },],
                 })
             );
         }, 1000);

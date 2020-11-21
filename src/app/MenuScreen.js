@@ -77,6 +77,8 @@ const MenuScreen = ({ navigation, viewBranchCategory, categories }) => {
                         items: item.items,
                     })} activeOpacity={0.7} key={index}>
                         <ListItem
+                            disabled={item.inStore === 0}
+                            disabledStyle={{ opacity: 0.5 }}
                             containerStyle={{
                                 height: 80,
                                 borderBottomColor: "rgba(221,221,221,0.4)",
@@ -92,16 +94,16 @@ const MenuScreen = ({ navigation, viewBranchCategory, categories }) => {
                                     resizeMode={FastImage.resizeMode.cover}
                                     style={styles.imgLeftAvatar}
                                 />
-                                    : <Avatar
-                                        size="medium"
-                                        title="?"
-                                        activeOpacity={0.7}
+                                    : <FastImage
+                                        source={require('../../assets/icon.png')}
+                                        style={styles.imgLeftAvatar}
+                                        resizeMode={FastImage.resizeMode.contain}
                                     />}
                             title={
                                 <Text style={styles.listItemTitle}>{item.name}</Text>
                             }
                             subtitle={
-                                <Text style={styles.listItemSubTitile}>In-store</Text>}
+                                <Text style={styles.listItemSubTitile}>{item.inStore == 1 ? 'In-Store' : 'Unavailable'}</Text>}
                             rightAvatar={
                                 <View style={{}}>
                                     <Icon
@@ -130,8 +132,6 @@ const MenuScreen = ({ navigation, viewBranchCategory, categories }) => {
             mounted.current = true;
         } else {
             // do componentDidUpdate logic
-            console.log("categories: ", categories)
-
         }
 
         // BackHandler.addEventListener('hardwareBackPress', handlegoBackBtn)
@@ -142,11 +142,14 @@ const MenuScreen = ({ navigation, viewBranchCategory, categories }) => {
                 <FlatList
                     ListEmptyComponent={<View style={{
                         alignSelf: 'center',
-                        marginVertical: 200,
-                        height: 100,
-                        lineHeight: 100
+                        marginVertical: 150,
                     }}>
-                        <Text style={{ fontSize: 15, fontWeight: "bold", color: "#858F95" }}>No Menus Avaliable yet</Text>
+                        <FastImage
+                            source={require('../../assets/not_found_menu.png')}
+                            style={styles.orderCentering}
+                            resizeMode={FastImage.resizeMode.cover}
+                        />
+                        <Text style={{ fontSize: 15, fontWeight: "bold", color: "#858F95" }}>No Menus Available yet</Text>
                     </View>}
                     contentContainerStyle={styles.scrollView}
                     refreshControl={
@@ -197,6 +200,11 @@ const styles = StyleSheet.create({
     scrollView: {
         flex: 1,
 
+    },
+    orderCentering: {
+        marginBottom: 20,
+        width: 150,
+        height: 180
     },
 });
 

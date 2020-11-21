@@ -1,7 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { Dimensions, StyleSheet, View, SafeAreaView, TouchableOpacity } from 'react-native'
-const screenHeight = Math.round(Dimensions.get('window').height);
-const screenWidth = Math.round(Dimensions.get('window').width);
+import { Dimensions, StyleSheet, View, SafeAreaView, Text, TouchableOpacity } from 'react-native'
 import 'moment-timezone';
 import { TabView } from 'react-native-tab-view';
 import Animated from 'react-native-reanimated';
@@ -12,22 +10,27 @@ import { getBranchOrders, getTransactionAccepted, getTransactionCancelled } from
 import AsyncStorage from '@react-native-community/async-storage';
 import { connect } from 'react-redux';
 import NotificationSounds, { playSampleSound } from 'react-native-notification-sounds';
+import BackgroundTimer from 'react-native-background-timer';
+import { CommonActions } from '@react-navigation/native'
 
 const initialLayout = { width: Dimensions.get('window').width };
+const screenHeight = Math.round(Dimensions.get('window').height);
+const screenWidth = Math.round(Dimensions.get('window').width);
 
-const MyOrderScreen = ({ route, orders, transactionsCancelled, transactionsAccepted, navigation, getBranchOrders, getTransactionAccepted, getTransactionCancelled}) => {
+const MyOrderScreen = ({ route, orders, transactionsCancelled, transactionsAccepted, navigation, getBranchOrders, getTransactionAccepted, getTransactionCancelled }) => {
     const mounted = useRef();
-    const ref = useRef();
 
-    const [visible, setVisible] = useState(false);
-    const [countDown, setCountDown] = useState(30);
-    const [ordersList, setOrdersList] = useState(0);
+    const [visible, setVisible] = React.useState(false);
+
+    const ref = useRef();
     const [index, setIndex] = useState(0);
     const [routes] = useState([
-        { key: 'review', title: 'New Order' },
-        { key: 'completed', title: 'Completed' },
-        { key: 'cancelled', title: 'Cancelled' },
+        { key: 'review', title: 'NEW' },
+        { key: 'completed', title: 'COMPLETED' },
+        { key: 'cancelled', title: 'CANCELLED' },
     ]);
+
+
 
     const [refreshing, setRefreshing] = useState(false);
 
@@ -50,22 +53,19 @@ const MyOrderScreen = ({ route, orders, transactionsCancelled, transactionsAccep
     const setBranchKey = async () => {
         const branch_key = await AsyncStorage.getItem('branch_key');
         getBranchOrders(branch_key);
-        const ordersList = await AsyncStorage.getItem('orders');
-        setOrdersList(ordersList)
     }
 
-    const handleOrderNotification = async () => {
-        let list = orders.length.toString();
-        await AsyncStorage.setItem('orders', list)
+    const pendingOrders = () => {
         NotificationSounds.getNotifications().then(soundsList => {
-            // console.warn('SOUNDS', JSON.stringify(soundsList));
-            playSampleSound(soundsList[43]);
+            playSampleSound(soundsList[0]);
         });
+
     }
 
     const handleAcceptScrolldown = () => {
         console.log("Hello")
-    } 
+    }
+
 
     const renderScene = ({ route }) => {
         switch (route.key) {
@@ -118,13 +118,6 @@ const MyOrderScreen = ({ route, orders, transactionsCancelled, transactionsAccep
         );
     };
 
-
-    const handleCountDown = () => {
-        let count = countDown - 1;
-        setCountDown(count);
-        if (countDown === 1) setVisible(false)
-    }
-
     const getAllTransactions = async () => {
         const branch_key = await AsyncStorage.getItem('branch_key');
         getTransactionAccepted(branch_key)
@@ -132,26 +125,25 @@ const MyOrderScreen = ({ route, orders, transactionsCancelled, transactionsAccep
     }
 
     useEffect(() => {
+        // navigation.dispatch(CommonActions.setParams({ to: orders.length }));
         if (!mounted.current) {
             // do componentDidMount logic
             setBranchKey();
             mounted.current = true;
         } else {
-            getAllTransactions()
-            console.log("orders: ", orders)
-            if (orders.length >= ordersList && orders.length > 0) handleOrderNotification()
+            getAllTransactions();
+            if (orders.length > 0) setVisible(true)
+            setTimeout(() => {
+                setVisible(false);
+            }, 1000)
             const interval = setInterval(() => {
                 setBranchKey();
-            }, 10000);
+                if (orders.length > 0) pendingOrders();
+            }, 5000);
             return () => clearInterval(interval)
         }
-      
-        // navigation.dispatch(CommonActions.setParams({ count: orders.length }));
-        // setTimeout(() => {
-        //     if (countDown > 0) handleCountDown();
-        // }, 1000)
 
-    }, [orders.length, transactionsCancelled.length, transactionsAccepted.length, countDown, mounted.current]);
+    }, [orders.length, transactionsCancelled.length, transactionsAccepted.length, mounted.current]);
     return (
         <SafeAreaView style={styles.viewScreen}>
             <TabView
@@ -164,7 +156,6 @@ const MyOrderScreen = ({ route, orders, transactionsCancelled, transactionsAccep
         </SafeAreaView>
     );
 }
-
 
 const styles = StyleSheet.create({
     viewScreen: {
@@ -184,9 +175,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
     },
     tabItem: {
-
-        marginRight: 20,
-        marginLeft: 20,
+        marginRight: 10,
+        marginLeft: 10,
         shadowOffset: { width: 10, height: 10, },
         shadowColor: 'black',
         shadowOpacity: 1.0,
@@ -203,8 +193,7 @@ const styles = StyleSheet.create({
 
 });
 
-
-const mapStateToProps = ({ orders, transactionsCancelled, transactionsAccepted}) => {
+const mapStateToProps = ({ orders, transactionsCancelled, transactionsAccepted }) => {
     return { orders, transactionsCancelled, transactionsAccepted }
 }
 

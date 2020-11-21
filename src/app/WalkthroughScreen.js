@@ -58,7 +58,7 @@ const WalkthroughScreen = ({ navigation }) => {
                                 marginTop: 20,
                                 backgroundColor: "#E02D2D",
                             }} title="Get Started" onPress={() => {
-                                navigation.navigate('auth')
+                                navigation.navigate('Auth')
                             }}></Button>
                     </View>
                 </View>

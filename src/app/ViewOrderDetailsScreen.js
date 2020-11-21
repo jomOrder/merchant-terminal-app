@@ -18,24 +18,23 @@ import { ListItem, Button } from 'react-native-elements'
 const screenHeight = Math.round(Dimensions.get('window').height);
 const screenWidth = Math.round(Dimensions.get('window').width);
 import Icon from 'react-native-vector-icons/FontAwesome5';
-import { Portal, Provider } from 'react-native-paper';
+import { Portal, Provider, Badge, Snackbar } from 'react-native-paper';
 import Spinner from 'react-native-loading-spinner-overlay';
 import ActionSheet from "react-native-actions-sheet";
 import SunmiInnerPrinter from 'react-native-sunmi-inner-printer';
-
 import { connect } from 'react-redux';
-import { acceptOrderTransaction, cancelOrderTransaction, updateBranchStatusBalance } from '../actions'
+import { acceptOrderTransaction, cancelOrderTransaction } from '../actions'
 import moment from 'moment-timezone'
 moment.tz.setDefault('Asia/Singapore');
 
-const ViewOrderDetailsScreen = ({ route, navigation, accepted, canceled, updateBalance, acceptOrderTransaction, cancelOrderTransaction, updateBranchStatusBalance }) => {
-    const { items, total, tax, sub_total, method, tableNo, transactionID } = route.params;
+const ViewOrderDetailsScreen = ({ route, navigation, accepted, canceled, acceptOrderTransaction, cancelOrderTransaction }) => {
+    const { items, total, tax, sub_total, method, tableNo, transactionID, eater, type, transactionStatus, prepaid, notes } = route.params;
     const actionSheetRef = createRef();
     const actionSheetRef1 = createRef();
     const mounted = useRef();
-
+    const [visible, setVisible] = React.useState(false);
     const [loading, setLoading] = useState(false);
-    const [includeTotal, setIncludeTotal] = useState(null);
+    const [message, setMessage] = useState(null);
     const [moreContent, setMoreContent] = useState(false);
     const [spinner, setSpinner] = useState(false);
     const [printerStatus, setPrinterStatus] = useState(null)
@@ -43,6 +42,27 @@ const ViewOrderDetailsScreen = ({ route, navigation, accepted, canceled, updateB
     const confirmCancelOrder = () => actionSheetRef.current?.setModalVisible(true);
 
     const confirmOrder = () => actionSheetRef1.current?.setModalVisible(true);
+
+    const onDismissSnackBar = () => setVisible(false);
+
+    const snackBarOrderAcceoted = () => {
+        return (
+            <Snackbar
+                style={{
+                    marginBottom: 20,
+                    borderRadius: 10,
+                }}
+                wrapperStyle={{
+
+                }}
+                visible={visible}
+                onDismiss={onDismissSnackBar}
+            >
+                <Text style={{ textAlign: 'center' }}>{message}</Text>
+            </Snackbar>
+        )
+    }
+
 
     const renderOrderItem = ({ item, index }) => {
         return (
@@ -67,6 +87,15 @@ const ViewOrderDetailsScreen = ({ route, navigation, accepted, canceled, updateB
                                     )
                                 })}
                             </View>
+                            <View style={{ paddingTop: 5, paddingBottom: 5, }}>
+                                {item.specialRequests.map((el, index) => {
+                                    return (
+                                        <View key={index} style={{ flexDirection: 'row' }}>
+                                            <Text style={{ fontSize: 13, fontWeight: "400", marginRight: 10 }}>{el}</Text>
+                                        </View>
+                                    )
+                                })}
+                            </View>
                         </View>}
 
                 />
@@ -74,66 +103,38 @@ const ViewOrderDetailsScreen = ({ route, navigation, accepted, canceled, updateB
         )
     }
 
-    const calculateOrder = () => {
-        let amount = (parseFloat(total) + parseFloat(tax));
-        let amountFix = (amount).toFixed(2)
-        setIncludeTotal(amountFix)
-    }
-
     const acceptOrder = async () => {
         const branch_key = await AsyncStorage.getItem('branch_key');
-        const ordersList = await AsyncStorage.getItem('orders');
-        let list = ordersList - 1;
-        let listString = list.toString();
-        await AsyncStorage.setItem('orders', listString)
         acceptOrderTransaction(branch_key, transactionID);
         actionSheetRef1.current?.setModalVisible(false);
         handlePrintReceipt();
         setSpinner(true);
-          setTimeout(() => {
+        setTimeout(() => {
             setSpinner(false);
-            navigation.navigate('Tab', { screen: 'Orders' });
+            navigation.navigate('Tab', { screen: 'Orders', params: { orderAccepted: 1 } });
         }, 2000);
-       
-    }
-
-    const updateBranchBalance = async () => {
-        const branch_key = await AsyncStorage.getItem('branch_key');
-        console.log("branch_key", branch_key)
-        console.log("transactionID: ", transactionID)
-        updateBranchStatusBalance(branch_key, transactionID);
-        // setTimeout(() => {
-        //     setSpinner(false);
-        //     navigation.navigate('Tab', { screen: 'Orders' });
-        // }, 2000);
-        console.log("updateBalance: ", updateBalance)
 
     }
 
-    const acceptWithoutOrder = async () => {
-
+    const acceptOrderWithoutReceipt = async () => {
         const branch_key = await AsyncStorage.getItem('branch_key');
-        const ordersList = await AsyncStorage.getItem('orders');
-        let list = ordersList - 1;
-        let listString = list.toString();
-        await AsyncStorage.setItem('orders', listString)
         acceptOrderTransaction(branch_key, transactionID);
-        actionSheetRef1.current?.setModalVisible(false);
+        // actionSheetRef1.current?.setModalVisible(false);
         setSpinner(true);
-          setTimeout(() => {
+        setMessage("Order has been accepted")
+        setVisible(true);
+        setTimeout(() => {
             setSpinner(false);
-            navigation.navigate('Tab', { screen: 'Orders' });
-        }, 1000);
+            navigation.goBack();
+        }, 1500);
     }
 
     const cancelOrder = async () => {
-        const ordersList = await AsyncStorage.getItem('orders');
-        let list = ordersList - 1;
-        let listString = list.toString();
-        await AsyncStorage.setItem('orders', listString)
         actionSheetRef.current?.setModalVisible(false)
         const branch_key = await AsyncStorage.getItem('branch_key');
         setSpinner(true);
+        setMessage("Order has been cancelled")
+        setVisible(true);
         setTimeout(() => {
             setSpinner(false);
             navigation.navigate('Tab', { screen: 'Orders' });
@@ -229,17 +230,17 @@ const ViewOrderDetailsScreen = ({ route, navigation, accepted, canceled, updateB
             handleDeviceEmitter();
             mounted.current = true;
         } else {
-            console.log("accepted: ", accepted)
             // if(accepted.length > 0) updateBranchBalance()
             return () => {
                 //BackHandler Remove
                 DeviceEventEmitter.removeAllListeners();
             }
         }
-    }, [accepted.length, canceled.length, items.length, printerStatus, updateBalance]);
+    }, [accepted.length, canceled.length, items.length, printerStatus]);
 
     return (
         <SafeAreaView style={styles.viewContainer}>
+            {snackBarOrderAcceoted()}
             <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'flex-start' }}>
                 <View style={{
                     width: screenWidth,
@@ -251,6 +252,11 @@ const ViewOrderDetailsScreen = ({ route, navigation, accepted, canceled, updateB
                             title="Order Summary"
                             subtitle={<View style={{ flexWrap: 'wrap', flexDirection: 'column' }}>
                                 <Text style={{ paddingBottom: 5 }}>Table No: {tableNo}</Text>
+                                <Text style={{ paddingBottom: 5 }}>Name: {eater.name}</Text>
+                                <Text style={{ paddingBottom: 5 }}>Phone: {eater.phone}</Text>
+                                <View style={{ paddingBottom: 5, alignSelf: 'flex-start' }}>
+                                    <Badge style={{ justifyContent: 'center', backgroundColor: "#e02d2d", paddingLeft: 10, paddingRight: 10, fontSize: 13, fontWeight: "bold" }}>{type == 0 ? 'Dine in' : 'Pickup'}</Badge>
+                                </View>
                                 <Text style={{ paddingBottom: 5 }}>Transaction ID</Text>
                                 <Text style={{ fontSize: 12 }}>{transactionID}</Text>
                             </View>}
@@ -274,9 +280,21 @@ const ViewOrderDetailsScreen = ({ route, navigation, accepted, canceled, updateB
                     </View>
 
                     <View style={{
-                        height: screenHeight - 270,
+                        height: screenHeight - 320,
                     }}>
                         <FlatList
+                            ListHeaderComponent={
+                                <View>
+                                    <ListItem
+                                        title={<View style={{ flexDirection: 'column' }}>
+                                            <Text style={{ fontSize: 13 }}>Notes:</Text>
+                                        </View>}
+                                        subtitle={<View style={{ flexDirection: 'column' }}>
+                                            <Text style={{ fontSize: 13, fontWeight: '500' }}>{notes}</Text>
+                                        </View>}
+                                    />
+                                </View>
+                            }
                             ListFooterComponent={
                                 <View style={{
                                     width: screenWidth
@@ -296,7 +314,7 @@ const ViewOrderDetailsScreen = ({ route, navigation, accepted, canceled, updateB
                                         }
                                         rightAvatar={<View style={styles.listItemPrices}>
                                             <View style={{}}>
-                                                <View style={{ flexDirection: 'row' }}>
+                                                <View style={{ flexDirection: 'row', marginTop: 5 }}>
                                                     <Text style={styles.listItemSuTotal}>RM</Text>
                                                     <Text style={styles.listItemSuTotal}>{sub_total}</Text>
                                                 </View>
@@ -304,8 +322,10 @@ const ViewOrderDetailsScreen = ({ route, navigation, accepted, canceled, updateB
                                                     <Text style={styles.listItemSummaryFee}>RM</Text>
                                                     <Text style={styles.listItemSummaryFee}>{tax}</Text>
                                                 </View>
-                                                <View style={{ marginLeft: 20 }}>
-                                                    <Text style={{}}>{method == 0 ? 'Cash' : 'Credit Card'}</Text>
+                                                <View style={{}}>
+                                                    <View style={{ alignSelf: 'flex-end' }}>
+                                                        <Badge style={{ justifyContent: 'center', backgroundColor: "#40AF4A", color: "#FFF", borderRadius: 0, paddingLeft: 5, paddingRight: 5, fontSize: 13, fontWeight: "bold" }}>{method == 0 ? 'Cash' : method == 1 ? 'Credit Card' : 'Online Banking'}</Badge>
+                                                    </View>
                                                 </View>
                                             </View>
                                         </View>}
@@ -364,43 +384,6 @@ const ViewOrderDetailsScreen = ({ route, navigation, accepted, canceled, updateB
 
                         </View>
                     </ActionSheet>
-                    <ActionSheet defaultOverlayOpacity={0.5} containerStyle={{
-                        height: 250,
-                    }} footerHeight={300} extraScroll={10} footerAlwaysVisible={true} closeOnTouchBackdrop={false} defaultOverlayOpacity={0.5} ref={actionSheetRef1}>
-                        <View style={{ marginTop: 40, alignItems: 'center', alignSelf: 'center' }}>
-                            <View style={{ justifyContent: 'flex-start' }}>
-                                <Text style={{ fontSize: 21, fontWeight: 'bold', paddingLeft: 15, paddingRight: 10, lineHeight: 35 }}>Accept Order</Text>
-                            </View>
-                        </View>
-                        <View style={{
-                            width: screenWidth,
-                            padding: 15,
-                        }}>
-                            <TouchableOpacity
-                                activeOpacity={0.9}>
-                                <View>
-                                    <Button
-                                        titleStyle={styles.loginBtn}
-                                        buttonStyle={{
-                                            height: 45,
-                                            marginBottom: 10,
-                                            backgroundColor: "#E02D2D",
-                                        }} title={"Print Receipt"} onPress={() => acceptOrder()}></Button>
-                                    <Button
-                                        titleStyle={styles.loginBtn}
-                                        buttonStyle={{
-                                            height: 45,
-                                            backgroundColor: "#E02D2D",
-                                        }} title={"Proceed Without Receipt"} onPress={() => acceptWithoutOrder()}></Button>
-                                </View>
-
-                                {loading ? (
-                                    <ActivityIndicator color="white" style={{ marginLeft: 8 }} />
-                                ) : null}
-                            </TouchableOpacity>
-
-                        </View>
-                    </ActionSheet>
                 </View>
                 <View style={{
                     position: 'absolute',
@@ -419,7 +402,7 @@ const ViewOrderDetailsScreen = ({ route, navigation, accepted, canceled, updateB
                             height: 50,
                             borderRadius: 0,
                             backgroundColor: "#32a867",
-                        }} title="ACCEPT" onPress={() => confirmOrder()} />
+                        }} title="ACCEPT" onPress={() => acceptOrderWithoutReceipt()} />
 
                 </View>
                 <Provider>
@@ -554,10 +537,10 @@ const styles = StyleSheet.create({
 });
 
 
-const mapStateToProps = ({ accepted, canceled, updateBalance }) => {
-    return { accepted, canceled, updateBalance }
+const mapStateToProps = ({ accepted, canceled }) => {
+    return { accepted, canceled }
 }
 
-export default connect(mapStateToProps, { acceptOrderTransaction, cancelOrderTransaction, updateBranchStatusBalance })(ViewOrderDetailsScreen);
+export default connect(mapStateToProps, { acceptOrderTransaction, cancelOrderTransaction })(ViewOrderDetailsScreen);
 
 

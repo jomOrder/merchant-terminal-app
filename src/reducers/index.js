@@ -9,7 +9,6 @@ import canceled from './cancelTransactionReducer';
 import transactions from './transactionHistoryReducer';
 import transactionsAccepted from './transactionAcceptedReducer';
 import transactionsCancelled from './transactionCancelledReducer';
-import updateBalance from './updateBranchBalanceReducer';
 import updateTime from './updateBranchReducer';
 import account from './accountReducer';
 
@@ -23,7 +22,6 @@ export default combineReducers({
     canceled,
     transactions,
     transactionsAccepted,
-    updateBalance,
     transactionsCancelled,
     account,
     updateTime

@@ -91,7 +91,7 @@ const ViewTransactionHistroyDetails = ({ route, navigation }) => {
                         />
                     </View>
                     <View style={{
-                        height: 230,
+                        height: 500,
                         marginBottom: 5
                     }}>
                         <FlatList

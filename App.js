@@ -15,6 +15,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { Provider } from 'react-redux'
 import configureStore from './src/store';
 import FlashMessage from "react-native-flash-message";
+import SplashScreen from 'react-native-splash-screen';
 
 const Stack = createStackNavigator()
 
@@ -28,16 +29,17 @@ const RootRoute = ({ navigation }) => {
 
 export default function App() {
   useEffect(() => {
+    SplashScreen.hide();
   }, []);
   return (
     <Provider store={configureStore()}>
-        <ThemeProvider>
-          <StatusBar barStyle="white-content" hidden={false} backgroundColor="#000" translucent={true} />
-          <NavigationContainer>
-            <RootRoute />
-          </NavigationContainer>
-          <FlashMessage style={{marginTop: 10}} animated={true} icon="auto" floating={true} position="top" />
-        </ThemeProvider>
+      <ThemeProvider>
+        <StatusBar barStyle="white-content" hidden={false} backgroundColor="#000" translucent={true} />
+        <NavigationContainer>
+          <RootRoute />
+        </NavigationContainer>
+        <FlashMessage style={{ marginTop: 10 }} animated={true} icon="auto" floating={true} position="top" />
+      </ThemeProvider>
     </Provider>
   );
 }

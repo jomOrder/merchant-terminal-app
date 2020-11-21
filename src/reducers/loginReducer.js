@@ -1,4 +1,4 @@
-import { USER_LOGIN, USER_ERR, USER_CHECK, INTERNAL_SERVER_ERROR } from '../actions/userAction'
+import { USER_LOGIN, USER_ERR, USER_CHECK, INTERNAL_SERVER_ERROR, CLEAR_USER } from '../actions/userAction'
 export default (state = [], action) => {
     switch (action.type) {
         case USER_LOGIN:
@@ -9,6 +9,8 @@ export default (state = [], action) => {
             return action.payload
         case INTERNAL_SERVER_ERROR:
             return action.payload
+        case CLEAR_USER:
+            return []
         default:
             return state;
     }

@@ -4,6 +4,8 @@ export const USER_ERR = 'USER_ERR'
 export const USER_CHECK = 'USER_CHECK'
 export const INTERNAL_SERVER_ERROR = 'INTERNAL_SERVER_ERROR'
 
+export const CLEAR_USER = 'CLEAR_USER'
+
 export const userLogin = (credentials) => async dispatch => {
     const response = await API.loginUser(credentials);
     const { data } = response;

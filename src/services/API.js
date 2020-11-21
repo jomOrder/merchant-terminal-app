@@ -12,6 +12,7 @@ API.interceptors.request.use(
     return config
   },
   error => {
+    console.log(error)
     return Promise.reject(error)
   }
 );
@@ -29,8 +30,8 @@ export default {
     return API.get(`/transaction/merchant/branch/order?branchID=${branchID}&status=${transactionStatus}`);
   },
 
-  viewBranchOrdersTransactionHistoy: async (branchID, ) => {
-    return API.get(`/transaction/merchant/branch/history?branchID=${branchID}&page=0&offset=30`);
+  viewBranchOrdersTransactionHistoy: async (branchID) => {
+    return API.get(`/transaction/merchant/branch/history?branchID=${branchID}&page=${0}`);
   },
 
   viewBranchOrdersTransactionAccepted: async (branchID, page = 0) => {
@@ -41,17 +42,17 @@ export default {
     return API.get(`/transaction/merchant/branch/cancelled?branchID=${branchID}&page=${page}`);
   },
 
-  acceptTransaction: async (branchID, transactionID) => {
-    return API.post(`/transaction/merchant/branch/status?branchID${branchID}&transactionID=${transactionID}`, { status: 1 });
-  },
-
-  updateBranchBalance: async (branchID, transactionID) => {
-    return API.post(`/transaction/merchant/branch/balance?branchID${branchID}&transactionID=${transactionID}`);
+  acceptTransaction: async (branch_key, transactionID) => {
+    try {
+      return API.post(`/transaction/merchant/branch/status?status=1&branchID=${branch_key}&transactionID=${transactionID}`);
+    } catch (e) {
+      console.log(e.message)
+    }
   },
 
   cancelTransaction: async (branchID, transactionID) => {
     try {
-      return API.post(`/transaction/merchant/branch/status?branchID${branchID}&transactionID=${transactionID}`, { status: 2 });
+      return API.post(`/transaction/merchant/branch/status?branchID${branchID}&transactionID=${transactionID}&status=${2}`);
 
     } catch (e) {
       console.log(e.message)
@@ -67,14 +68,14 @@ export default {
   },
 
   viewSingleBranch: async branchKey => {
-    return API.get(`/merchant/branches/single?branch_key=${branchKey}`);
+    return API.get(`/merchant/branches/single?branchKey=${branchKey}`);
   },
 
   /**
    * 
    */
   viewBranchCategoryAndItems: async branchKey => {
-    return API.get(`/merchant/branch/view/mobile/categoryAndItem?branch_key=${branchKey}`);
+    return API.get(`/merchant/branch/view/mobile/categoryAndItem?branchKey=${branchKey}`);
   },
 
   updateMerchantStatus: async (branchKey, status) => {

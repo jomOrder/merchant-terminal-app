@@ -59,8 +59,8 @@ const Login = ({ navigation, userLogin, auth }) => {
 
         // setInterval(() => {
         //     setSpinner(!spinner);
-        // }, 3000);
-
+        // }, 3000)
+        
         if (auth.err === 10) authSuccess();
         if (auth.err === 13) authFail(auth.message);
 
