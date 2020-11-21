@@ -39,6 +39,7 @@ const MyLoader = () => (
 const AccountScreen = ({ navigation, account, accountDetails, updateMerchantTime, updateTime, }) => {
     const mounted = useRef();
     const refRBSheet = useRef();
+    const [isAccount, setAccount] = useState(true);
     const [loading, setLoading] = useState(true);
     const [retailName, setRetailName] = useState(null);
     const [email, setEmail] = useState(null);
@@ -57,7 +58,7 @@ const AccountScreen = ({ navigation, account, accountDetails, updateMerchantTime
         setFeedackTitle('Yay! How about ratng us on the Google Play Store?');
         setFirstBtn('Absolutely');
         setSecondBtn('No, Thanks');
-        if (firstBtn.includes("Abs")) Linking.openURL('market://details?id=myandroidappid')
+        if (firstBtn.includes("Abs")) Linking.openURL('market://details?id=com.jomordermerchantapp')
     }
     const handleSecondBtnShareFeedback = () => {
         setFeedackTitle('Every feedback helps. What can we improve on?');
@@ -127,7 +128,6 @@ const AccountScreen = ({ navigation, account, accountDetails, updateMerchantTime
     useEffect(() => {
         if (!mounted.current) {
             getAccountInfo();
-
             setTimeout(() => {
                 setLoading(false)
             }, 300)
@@ -135,11 +135,11 @@ const AccountScreen = ({ navigation, account, accountDetails, updateMerchantTime
         } else {
             // do componentDidUpdate logic
             if (account.length > 0) {
-                setRetailName(account[0].merchant.retail_name)
+                setRetailName(account[0].merchant.retailName)
                 setEmail(account[0].email)
-                setMobile(account[0].merchant.mobile)
+                setMobile(account[0].merchant.phoneNumber)
                 setImage(account[0].merchant.image.url)
-                if(account[0].merchant.branches[0].status === 1) setIsSwitchOn(true)
+                if(account[0].merchant.branches[0].isOpen === 1) setIsSwitchOn(true)
                 else setIsSwitchOn(false)
             }
         }
@@ -292,7 +292,7 @@ const AccountScreen = ({ navigation, account, accountDetails, updateMerchantTime
                                 <Text style={styles.paymentText}>Settings</Text>
                             </View>
                             <View style={[styles.itemContainer, styles.paymentMethodChild]}>
-                                <ListItem
+                                {/* <ListItem
                                     titleStyle={styles.listItemTitileStatus}
                                     title={"Printing auto receipt"}
                                     subtitle={"Toggle off to pause auto receipt"}
@@ -310,7 +310,7 @@ const AccountScreen = ({ navigation, account, accountDetails, updateMerchantTime
 
                                     </TouchableOpacity>}
                                     bottomDivider
-                                />
+                                /> */}
                                 {/* <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('BankAccount')}>
                                     <ListItem
                                         title="Bank account information"

@@ -1,10 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import {
     TouchableOpacity, StyleSheet, View, Image
 } from 'react-native';
 import FastImage from 'react-native-fast-image'
-
-import AsyncStorage from '@react-native-community/async-storage';
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack'
@@ -23,7 +21,7 @@ const MenusStack = createStackNavigator();
 const MessagesStack = createStackNavigator();
 const MoreStack = createStackNavigator();
 
-const HomeStackScreen = ({ navigation }) => {
+const HomeStackScreen = ({ }) => {
     return (
         <HomeStack.Navigator>
             <HomeStack.Screen
@@ -60,10 +58,11 @@ const HomeStackScreen = ({ navigation }) => {
     );
 }
 
-const OrdersStackScreen = () => {
+const OrdersStackScreen = ({ route }) => {
     return (
         <OrdersStack.Navigator>
             <OrdersStack.Screen
+                initialParams={{ orderAccepted: 0 }}
                 name="Orders"
                 component={MyOrderScreen}
                 options={{
@@ -191,6 +190,7 @@ const MoreStackScreen = () => {
 
 
 const TabMainScreen = ({ route, navigation }) => {
+    const { count } = route.params;
     useEffect(() => {
         // if(route.name == 'Orders') return () => BackHandler.removeEventListener('hardwareBackPress', () => true)
     }, []);

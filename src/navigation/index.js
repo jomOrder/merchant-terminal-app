@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { TouchableNativeFeedback, TouchableHighlight, View, BackHandler, Alert } from 'react-native'
 import { createStackNavigator } from '@react-navigation/stack';
 import WalkthroughScreen from '../app/WalkthroughScreen';
@@ -23,6 +23,8 @@ import AsyncStorage from '@react-native-community/async-storage';
 
 const Stack = createStackNavigator();
 const Navigation = ({ navigation }) => {
+    const mounted = useRef();
+
     const [token, setToken] = useState(null);
     const [branch, setBranch] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -42,7 +44,8 @@ const Navigation = ({ navigation }) => {
         NetInfo.fetch().then(({ isConnected, type }) => {
             if (isConnected) setTimeout(() => {
                 setLoading(false)
-            }, 2000)
+
+            }, 500)
             else Alert.alert(
                 'No Connection Found',
                 "Please Check your network cnnection",
@@ -54,21 +57,27 @@ const Navigation = ({ navigation }) => {
     }
 
     useEffect(() => {
-        handleNetworkIssue();
-        handleMyBranch();
-        checkToken();
-    }, []);
-    return (
+        if (!mounted.current) {
+            // do componentDidMount logic
+            handleNetworkIssue();
+            handleMyBranch();
+            checkToken();
+            mounted.current = true;
+        } else {
+            // do componentDidUpdate logic
+        }
 
+    }, [mounted]);
+    return (
         loading ? <SplashScreen /> :
             <Stack.Navigator initialRouteName={token && branch ? "Tab" : !token ? "Walkthrough" : 'MyBranch'}>
-                <Stack.Screen options={{ headerShown: false }} name="Splash" component={SplashScreen} />
-                <Stack.Screen options={{ headerShown: false }} name="Walkthrough" component={WalkthroughScreen} />
-                <Stack.Screen options={{ headerShown: false }} name="Tab" component={TabMainScreen} />
-                <Stack.Screen options={{ headerShown: false }} name="auth" component={Login} />
-                <Stack.Screen options={{ headerShown: false }} name="MyBranch" component={MyBranchScreen} />
-                {/* <Stack.Screen options={{ headerShown: false }} name="ReviewOrder" component={ReviewOrderScreen} /> */}
+                <Stack.Screen options={{ headerShown: false, animationEnabled: false }} name="Splash" component={SplashScreen} />
+                <Stack.Screen options={{ headerShown: false, animationEnabled: false }} name="Walkthrough" component={WalkthroughScreen} />
+                <Stack.Screen options={{ headerShown: false, animationEnabled: false }} initialParams={{ count: 1 }} name="Tab" component={TabMainScreen} />
+                <Stack.Screen options={{ headerShown: false, animationEnabled: false }} name="Auth" component={Login} />
+                <Stack.Screen options={{ headerShown: false, animationEnabled: false }} name="MyBranch" component={MyBranchScreen} />
                 <Stack.Screen options={{
+                    animationEnabled: false,
                     headerTitle: 'Menu Item',
                     headerTitleStyle: {
                         color: "#000",
@@ -85,7 +94,6 @@ const Navigation = ({ navigation }) => {
                     },
                     headerRight: null,
                     headerLeft: () => (
-
                         <View style={{ borderRadius: 50, width: 60, height: 60 }}>
                             <TouchableHighlight underlayColor={"#DDD"} style={{ borderRadius: 30 }} onPress={() => navigation.navigate('Tab', { screen: "Menus" })}>
                                 <View style={{ width: 60, height: 60, backgroundColor: 'transparent', justifyContent: 'center', alignItems: 'center', alignSelf: 'center' }} >
@@ -104,7 +112,9 @@ const Navigation = ({ navigation }) => {
                     headerTitleAlign: 'center',
                 }} name="MenuItem" component={MenuItemScreen} />
                 <Stack.Screen options={{
+                    animationEnabled: false,
                     headerTitle: 'Order Details',
+                    animationEnabled: false,
                     headerTitleStyle: {
                         color: "#000",
                         fontSize: 17,
@@ -122,7 +132,7 @@ const Navigation = ({ navigation }) => {
                     headerLeft: () => (
 
                         <View style={{ borderRadius: 50, width: 60, height: 60 }}>
-                            <TouchableHighlight underlayColor={"#DDD"} style={{ borderRadius: 30 }} onPress={() => navigation.navigate('Tab', {screen: "Orders"})}>
+                            <TouchableHighlight underlayColor={"#DDD"} style={{ borderRadius: 30 }} onPress={() => navigation.navigate('Tab', { screen: "Orders" })}>
                                 <View style={{ width: 60, height: 60, backgroundColor: 'transparent', justifyContent: 'center', alignItems: 'center', alignSelf: 'center' }} >
                                     <Icon
                                         style={{ color: "#858F95", }}
@@ -132,14 +142,13 @@ const Navigation = ({ navigation }) => {
                                 </View>
                             </TouchableHighlight>
                         </View>
-
-
                     ),
                     headerBackTitle: null,
                     headerTintColor: '#fff',
                     headerTitleAlign: 'center',
                 }} name="Details" component={ViewOrderDetailsScreen} />
                 <Stack.Screen options={{
+                    animationEnabled: false,
                     headerTitle: 'Transaction History',
                     headerTitleStyle: {
                         color: "#000",
@@ -175,6 +184,7 @@ const Navigation = ({ navigation }) => {
                     headerTitleAlign: 'center',
                 }} name="Transactions" component={TransactionHistory} />
                 <Stack.Screen options={{
+                    animationEnabled: false,
                     headerTitle: 'Transaction Details',
                     headerTitleStyle: {
                         color: "#000",
@@ -210,6 +220,7 @@ const Navigation = ({ navigation }) => {
                     headerTitleAlign: 'center',
                 }} name="HistoryDetails" component={ViewTransactionHistroyDetails} />
                 <Stack.Screen options={{
+                    animationEnabled: false,
                     headerTitle: 'Logout',
                     headerTitleStyle: {
                         fontSize: 16,
@@ -278,6 +289,7 @@ const Navigation = ({ navigation }) => {
                     headerTitleAlign: 'center',
                 }} name="VisitHelpCente" component={VisitHelpCentreScreen} />
                 <Stack.Screen options={{
+                    animationEnabled: false,
                     headerTitle: 'Contact Support',
                     headerTitleStyle: {
                         color: "#000",
@@ -294,7 +306,6 @@ const Navigation = ({ navigation }) => {
                     },
                     headerRight: null,
                     headerLeft: () => (
-
                         <View style={{ borderRadius: 50, width: 60, height: 60, }}>
                             <TouchableHighlight underlayColor={"#f7f7f7"} style={{ borderRadius: 30, width: 55, height: 55 }} onPress={() => navigation.navigate('Tab', { screen: 'More' })}>
                                 <View style={{ width: 60, height: 60, backgroundColor: 'transparent', justifyContent: 'center', alignItems: 'center', alignSelf: 'center' }} >
@@ -306,7 +317,6 @@ const Navigation = ({ navigation }) => {
                                 </View>
                             </TouchableHighlight>
                         </View>
-
                     ),
                     headerBackTitle: null,
                     headerTintColor: '#fff',
@@ -330,7 +340,6 @@ const Navigation = ({ navigation }) => {
                     },
                     headerRight: null,
                     headerLeft: () => (
-
                         <View style={{}}>
                             <TouchableNativeFeedback activeOpacity={0.7} onPress={() => {
                                 navigation.navigate('Tab', { screen: 'More' });
@@ -342,7 +351,6 @@ const Navigation = ({ navigation }) => {
                                 />
                             </TouchableNativeFeedback >
                         </View>
-
                     ),
                     headerBackTitle: null,
                     headerTintColor: '#fff',
@@ -365,7 +373,6 @@ const Navigation = ({ navigation }) => {
                     },
                     headerRight: null,
                     headerLeft: () => (
-
                         <View style={{}}>
                             <TouchableNativeFeedback activeOpacity={0.7} onPress={() => {
                                 navigation.navigate('Tab', { screen: 'Home' });
@@ -377,15 +384,12 @@ const Navigation = ({ navigation }) => {
                                 />
                             </TouchableNativeFeedback >
                         </View>
-
                     ),
                     headerBackTitle: null,
                     headerTintColor: '#fff',
                     headerTitleAlign: 'center',
                 }} name="ScanQRCode" component={ScanQRCodeScreen} />
             </Stack.Navigator>
-
-
     )
 }
 

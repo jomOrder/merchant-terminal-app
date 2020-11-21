@@ -72,7 +72,7 @@ const ContactScreen = ({ route, navigation }) => {
                             />
                             <ListItem
                                 titleStyle={styles.listItemEmail}
-                                title="support@thejomorder.com"
+                                title="support@jomorder.com.my"
                                 bottomDivider
                             />
                         </View>

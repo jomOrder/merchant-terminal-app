@@ -11,7 +11,6 @@ import {
     BackHandler
 } from 'react-native';
 import { ListItem, Badge } from 'react-native-elements'
-import Icon from 'react-native-vector-icons/FontAwesome5';
 import ContentLoader, { Rect } from 'react-content-loader/native'
 import FastImage from 'react-native-fast-image'
 
@@ -34,7 +33,6 @@ const MyLoader = () => (
 
 const MenuItemScreen = ({ route, navigation }) => {
     const [loading, setLoading] = useState(true);
-    const [errMessage, setErrMessage] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const { items } = route.params;
 
@@ -42,6 +40,10 @@ const MenuItemScreen = ({ route, navigation }) => {
         return new Promise(resolve => {
             setTimeout(resolve, timeout);
         });
+    }
+
+    const handlegoBackBtn = () => {
+        navigation.navigate('Tab', { screen: 'Menus' });
     }
 
     const onRefresh = useCallback(() => {
@@ -67,24 +69,27 @@ const MenuItemScreen = ({ route, navigation }) => {
                             borderBottomColor: "rgba(221,221,221,0.4)",
                             borderBottomWidth: 1
                         }}
-                        disabled={item.in_store === 0}
+                        disabled={item.inStore === 0}
                         disabledStyle={{ opacity: 0.5 }}
                         key={index}
                         leftAvatar={
-                            <FastImage
+                            item.photo.url ? <FastImage
                                 source={{
                                     uri: item.photo.url,
-                                    
                                 }}
                                 resizeMode={FastImage.resizeMode.cover}
                                 style={styles.imgLeftAvatar}
-                            />
+                            /> : <FastImage
+                                    source={require('../../assets/icon.png')}
+                                    style={styles.imgLeftAvatar}
+                                    resizeMode={FastImage.resizeMode.contain}
+                                />
                         }
                         title={
                             <Text style={styles.listItemTitle}>{item.name}</Text>
                         }
                         subtitle={
-                            <Text style={styles.listItemSubTitile}>{item.in_store ? 'In-Store' : 'Unavaliable'}</Text>
+                            <Text style={styles.listItemSubTitile}>{item.inStore == 1 ? 'In-Store' : 'Unavaliable'}</Text>
                         }
                         rightAvatar={
                             <View style={{ width: 70 }}>
@@ -99,12 +104,16 @@ const MenuItemScreen = ({ route, navigation }) => {
     }
 
     useEffect(() => {
-        // BackHandler.addEventListener('hardwareBackPress', () => {
-        //     navigation.navigate('Tab', { screen: 'Menus' });
-        // })
         setTimeout(() => {
             setLoading(false)
         }, 200)
+        BackHandler.addEventListener('hardwareBackPress', () => {
+            handlegoBackBtn();
+        })
+        return () => {
+            //BackHandler Remove
+            BackHandler.removeEventListener('hardwareBackPress', handlegoBackBtn)
+        }
     }, [loading]);
     return (
         <SafeAreaView style={styles.viewScreen}>
@@ -112,11 +121,14 @@ const MenuItemScreen = ({ route, navigation }) => {
                 <FlatList
                     ListEmptyComponent={<View style={{
                         alignSelf: 'center',
-                        marginVertical: 200,
-                        height: 100,
-                        lineHeight: 100
+                        marginVertical: 150,
                     }}>
-                        <Text style={{ fontSize: 15, fontWeight: "bold", color: "#858F95" }}>No Menu Items Avaliable yet</Text>
+                        <FastImage
+                            source={require('../../assets/not_found_menu.png')}
+                            style={styles.orderCentering}
+                            resizeMode={FastImage.resizeMode.cover}
+                        />
+                        <Text style={{ fontSize: 15, fontWeight: "bold", color: "#858F95" }}>No Menus Available yet</Text>
                     </View>}
                     contentContainerStyle={styles.scrollView}
                     showsVerticalScrollIndicator={false}
@@ -176,6 +188,11 @@ const styles = StyleSheet.create({
     scrollView: {
         flex: 1,
 
+    },
+    orderCentering: {
+        marginBottom: 20,
+        width: 150,
+        height: 180
     },
 });
 

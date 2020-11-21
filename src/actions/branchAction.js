@@ -45,9 +45,9 @@ export const viewMerchantBranch = (branch_key) => async dispatch => {
     });
 };
 
-export const updateMerchantTime = (branch_key, status) => async dispatch => {
+export const updateMerchantTime = (branch_key, isOpen) => async dispatch => {
     
-    const response = await API.updateMerchantStatus(branch_key, status);
+    const response = await API.updateMerchantStatus(branch_key, isOpen);
     const { data } = response;
     const { message, err } = data;
     if(err === 0) dispatch({

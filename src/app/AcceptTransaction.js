@@ -18,6 +18,8 @@ import Moment from 'react-moment';
 const screenHeight = Math.round(Dimensions.get('window').height);
 const screenWidth = Math.round(Dimensions.get('window').width);
 import ContentLoader, { Rect, Circle } from 'react-content-loader/native'
+import FastImage from 'react-native-fast-image';
+
 import moment from 'moment-timezone'
 moment.tz.setDefault('Asia/Singapore');
 
@@ -63,13 +65,12 @@ const AcceptTransactionScreen = forwardRef(({ transactionsAccepted = [], handleA
 
 
     const setBranchKey = async () => {
-        const branch_key = await AsyncStorage.getItem('branch_key');
-        getTransactionAccepted(branch_key);
+        const branchKey = await AsyncStorage.getItem('branch_key');
+        getTransactionAccepted(branchKey);
 
     }
 
     const handleTransactionEnd = () => {
-        console.log("Hello")
         handleAcceptScrolldown();
     }
 
@@ -82,11 +83,11 @@ const AcceptTransactionScreen = forwardRef(({ transactionsAccepted = [], handleA
                     navigation.navigate('HistoryDetails', {
                         status: item.status,
                         items: item.order.items,
-                        sub_total: item.transaction_cost,
+                        sub_total: item.grossCost,
                         total: item.total,
-                        tax: item.total_tax,
-                        tableNo: item.order.table_no,
-                        method: item.transaction_method,
+                        tax: item.totalTax,
+                        tableNo: item.order.tableNo,
+                        method: item.transactionMethod,
                         transactionID: item.transactionID
 
                     })
@@ -105,7 +106,7 @@ const AcceptTransactionScreen = forwardRef(({ transactionsAccepted = [], handleA
                         </View>}
                         subtitle={<View>
                             <Text>
-                                Table Number: {item.order.table_no}
+                                Table Number: {item.order.tableNo}
                             </Text>
 
                         </View>}
@@ -140,29 +141,22 @@ const AcceptTransactionScreen = forwardRef(({ transactionsAccepted = [], handleA
 
     return (
         <SafeAreaView style={styles.viewScreen}>
-            <View style={{ flex: 1}}>
+            <View style={{ flex: 1 }}>
                 <FlatList
-                    // ListHeaderComponent={
-                    //     <View style={styles.itemContainer}>
-                    //         <ListItem
-                    //             titleStyle={styles.listItemTitile}
-                    //             title="Today, June 18"
-                    //             bottomDivider
-                    //         />
-                    //     </View>
-                    // }
+
                     ListEmptyComponent={<View style={{
                         alignSelf: 'center',
-                        position: 'absolute',
-                        top: screenHeight - 400,
-                        height: 100,
-                        lineHeight: 100
+                        marginVertical: 150,
                     }}>
-                        <Text style={{ fontSize: 15, fontWeight: "bold", color: "#858F95" }}>No Transactions Avaliable yet</Text>
+                        <FastImage
+                            source={require('../../assets/not_found.png')}
+                            style={styles.orderCentering}
+                            resizeMode={FastImage.resizeMode.cover}
+                        />
+                        <Text style={{ fontSize: 15, fontWeight: "bold", color: "#858F95" }}>No Accpted Orders yet</Text>
                     </View>}
                     onEndReached={() => {
-                       console.log("Hello")
-                    }} 
+                    }}
                     onEndReachedThreshold={0}
                     scrollEnabled={true}
                     // contentContainerStyle={styles.scrollView}
@@ -231,6 +225,11 @@ const styles = StyleSheet.create({
     },
     scrollView: {
         flex: 1,
+    },
+    orderCentering: {
+        marginBottom: 20,
+        width: 150,
+        height: 180
     },
 });
 

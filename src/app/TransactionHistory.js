@@ -13,6 +13,7 @@ import {
     SafeAreaView
 } from 'react-native';
 
+import FastImage from 'react-native-fast-image';
 import AsyncStorage from '@react-native-community/async-storage';
 import { ListItem, Button, CheckBox } from 'react-native-elements'
 import Icon from 'react-native-vector-icons/FontAwesome5';
@@ -79,11 +80,11 @@ const TransactionHistory = ({ navigation, transactions, getTransactionHistory })
                     navigation.navigate('HistoryDetails', {
                         status: item.status,
                         items: item.order.items,
-                        sub_total: item.transaction_cost,
+                        sub_total: item.grossCost,
                         total: item.total,
-                        tax: item.total_tax,
-                        tableNo: item.order.table_no,
-                        method: item.transaction_method,
+                        tax: item.totalTax,
+                        tableNo: item.order.tableNo,
+                        method: item.transactionMethod,
                         transactionID: item.transactionID
 
                     })
@@ -102,7 +103,7 @@ const TransactionHistory = ({ navigation, transactions, getTransactionHistory })
                         </View>}
                         subtitle={<View>
                             <Text>
-                                Table Number: {item.order.table_no}
+                                Table Number: {item.order.tableNo}
                             </Text>
 
                         </View>}
@@ -151,23 +152,16 @@ const TransactionHistory = ({ navigation, transactions, getTransactionHistory })
         <SafeAreaView style={styles.viewScreen}>
             <View>
                 <FlatList
-                    // ListHeaderComponent={
-                    //     <View style={styles.itemContainer}>
-                    //         <ListItem
-                    //             titleStyle={styles.listItemTitile}
-                    //             title="Today, June 18"
-                    //             bottomDivider
-                    //         />
-                    //     </View>
-                    // }
                     ListEmptyComponent={<View style={{
                         alignSelf: 'center',
-                        position: 'absolute',
-                        top: screenHeight - 400,
-                        height: 100,
-                        lineHeight: 100
+                        marginVertical: 150,
                     }}>
-                        <Text style={{ fontSize: 15, fontWeight: "bold", color: "#858F95" }}>No Transactions Avaliable yet</Text>
+                        <FastImage
+                            source={require('../../assets/not_found.png')}
+                            style={styles.orderCentering}
+                            resizeMode={FastImage.resizeMode.cover}
+                        />
+                        <Text style={{ fontSize: 15, fontWeight: "bold", color: "#858F95" }}>No Transactions yet</Text>
                     </View>}
                     scrollEnabled={true}
                     contentContainerStyle={styles.scrollView}
@@ -236,6 +230,11 @@ const styles = StyleSheet.create({
     },
     scrollView: {
         flex: 1,
+    },
+    orderCentering: {
+        marginBottom: 20,
+        width: 150,
+        height: 180
     },
 });
 

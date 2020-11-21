@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useRef, forwardRef } from 'react';
+import React, { useEffect, forwardRef } from 'react';
 import {
     Dimensions,
     StyleSheet,
@@ -7,80 +7,30 @@ import {
     SafeAreaView,
     Text,
     TouchableOpacity,
-    RefreshControl,
 } from 'react-native'
-
-import AsyncStorage from '@react-native-community/async-storage';
-import Modal from 'react-native-modal';
+import FastImage from 'react-native-fast-image';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import Moment from 'react-moment';
-import { CommonActions } from '@react-navigation/native'
 import { ListItem } from 'react-native-elements'
-import NotificationSounds, { playSampleSound } from 'react-native-notification-sounds';
 const screenHeight = Math.round(Dimensions.get('window').height);
 const screenWidth = Math.round(Dimensions.get('window').width);
 
 const ReviewOrderScreen = forwardRef(({ orders, navigation }, ref) => {
-    const mounted = useRef();
-    const [visible, setVisible] = useState(false);
-    const [ordersList, setOrdersList] = useState(0);
-
-    const [countDown, setCountDown] = useState(30);
-    const [refreshing, setRefreshing] = useState(false);
-
-    const wait = (timeout) => {
-        return new Promise(resolve => {
-            setTimeout(resolve, timeout);
-        });
-    }
-
-    const onRefresh = useCallback(() => {
-        setRefreshing(true);
-        /**
-         * Insert Code here to fetch new Data
-         */
-        wait(1000).then(() => {
-            setRefreshing(false)
-        });
-    }, [refreshing]);
-
-
-    const setBranchKey = async () => {
-        const branch_key = await AsyncStorage.getItem('branch_key');
-        getBranchOrders(branch_key);
-        const ordersList = await AsyncStorage.getItem('orders');
-        setOrdersList(ordersList)
-    }
-    const handleOrderNotification = async () => {
-        let list = orders.length.toString();
-        await AsyncStorage.setItem('orders', list)
-        NotificationSounds.getNotifications().then(soundsList => {
-            // console.warn('SOUNDS', JSON.stringify(soundsList));
-            playSampleSound(soundsList[43]);
-        });
-    }
-
-    const handleCountDown = () => {
-        let count = countDown - 1;
-        setCountDown(count);
-        if (countDown === 1) setVisible(false)
-    }
-
-    const getAcceptedTransaction = async () => {
-        const branch_key = await AsyncStorage.getItem('branch_key');
-        getTransactionAccepted(branch_key)
-    }
-
     const renderOrders = ({ item, index }) => {
         return (
             <View style={{ paddingLeft: 5, paddingRight: 5 }}>
                 <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.navigate('Details', {
                     items: item.order.items,
-                    sub_total: item.transaction_cost,
+                    sub_total: item.grossCost,
                     total: item.total,
-                    tax: item.total_tax,
-                    tableNo: item.order.table_no,
-                    method: item.transaction_method,
+                    tax: item.totalTax,
+                    tableNo: item.order.tableNo,
+                    type: item.order.type,
+                    method: item.transactionMethod,
+                    transactionStatus: item.transactionStatus,
+                    prepaid: item.prepaid,
+                    notes: item.notes,
+                    eater: item.eater,
                     transactionID: item.transactionID
                 })} key={index}>
                     <ListItem
@@ -98,7 +48,7 @@ const ReviewOrderScreen = forwardRef(({ orders, navigation }, ref) => {
                             </View>
                             <View style={{ justifyContent: 'space-between', flexWrap: 'wrap', flexDirection: 'column' }}>
                                 <Text style={{ paddingBottom: 5, fontSize: 14, fontWeight: "600", color: "#848484" }}>{item.order.items.length} Items</Text>
-                                <Text style={{ fontSize: 14, fontWeight: "600", color: "#848484" }}>Table No: {item.order.table_no}</Text>
+                                <Text style={{ fontSize: 14, fontWeight: "600", color: "#848484" }}>Table No: {item.order.tableNo}</Text>
 
                             </View>
                         </View>}
@@ -122,7 +72,6 @@ const ReviewOrderScreen = forwardRef(({ orders, navigation }, ref) => {
     };
 
     useEffect(() => {
-        console.log("orders: ", orders)
     }, [orders.length])
 
     return (
@@ -131,8 +80,13 @@ const ReviewOrderScreen = forwardRef(({ orders, navigation }, ref) => {
                 <FlatList
                     ListEmptyComponent={<View style={{
                         alignSelf: 'center',
-                        marginVertical: 200,
+                        marginVertical: 150,
                     }}>
+                        <FastImage
+                            source={require('../../assets/not_found.png')}
+                            style={styles.orderCentering}
+                            resizeMode={FastImage.resizeMode.cover}
+                        />
                         <Text style={{ fontSize: 15, fontWeight: "bold", color: "#858F95" }}>No Orders Avaliable yet</Text>
                     </View>}
                     showsVerticalScrollIndicator={false}
@@ -180,6 +134,11 @@ const styles = StyleSheet.create({
     },
     scrollView: {
         flex: 1,
+    },
+    orderCentering: {
+        marginBottom: 20,
+        width: 150,
+        height: 180
     },
 
 });

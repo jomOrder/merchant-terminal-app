@@ -6,10 +6,11 @@ import {
     Image,
 } from 'react-native';
 const screenHeight = Math.round(Dimensions.get('window').height);
+import FastImage from 'react-native-fast-image'
 
 const SplashScreen = ({ navigation }) => {
     const [loading, setLoading] = useState(false);
-   
+
     useEffect(() => {
     }, []);
 
@@ -21,9 +22,10 @@ const SplashScreen = ({ navigation }) => {
                 alignItems: 'center',
                 height: screenHeight
             }}>
-                <Image
-                    source={require('../../assets/JomOrder-logo-white.png')}
+                <FastImage
+                    source={require('../../assets/icon.png')}
                     style={styles.centering}
+                    resizeMode={FastImage.resizeMode.cover}
                 />
             </View>
         </View>
@@ -34,12 +36,11 @@ const SplashScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     viewContainer: {
         flex: 1,
-        backgroundColor: "#E02D2D",
-        height: screenHeight
+        backgroundColor: "#F9F9F9",
     },
     centering: {
-        width: 300,
-        height: 100
+        width: 100,
+        height: 90
     },
 });
 

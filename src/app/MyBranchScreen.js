@@ -98,7 +98,7 @@ const MyBranchScreen = ({ route, navigation, branches, getMerchantBranches }) =>
         let BRANCHES = [];
         branches.map((el, index) => {
             let locationIcon = el.location.replace(/[^A-Z]/g, '').slice(0, 2)
-            BRANCHES.push({ id: index, name: el.name, location: el.location, locIconn: locationIcon, branchKey: el.branch_key, checked: false })
+            BRANCHES.push({ id: index, name: el.name, location: el.location, locIconn: locationIcon, branchKey: el.branchKey, checked: false })
         })
         setBRANCHES(BRANCHES);
     }
