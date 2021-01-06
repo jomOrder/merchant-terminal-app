@@ -159,7 +159,7 @@ const MenuScreen = ({ navigation, viewBranchCategory, categories }) => {
                     legacyImplementation={false}
                     data={categories}
                     renderItem={item => renderMenu(item)}
-                    keyExtractor={item => item.id.toString(2)}
+                    keyExtractor={item => item.id.toString()}
                 />
             </SafeAreaView>
         </SafeAreaView>

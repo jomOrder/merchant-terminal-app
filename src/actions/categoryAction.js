@@ -15,6 +15,6 @@ export const viewBranchCategory = (branchID) => async dispatch => {
 
     if(err === 25) return dispatch({
         type: BRANCH_CATEGORY_AND_ITEM_NOT_FOUND,
-        payload: [{ err: 25, message }]
+        payload: []
     });
 };

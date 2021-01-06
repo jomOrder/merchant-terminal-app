@@ -21,8 +21,8 @@ const ReviewOrderScreen = forwardRef(({ orders, navigation }, ref) => {
             <View style={{ paddingLeft: 5, paddingRight: 5 }}>
                 <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.navigate('Details', {
                     items: item.order.items,
-                    sub_total: item.grossCost,
-                    total: item.total,
+                    total: item.grossCost,
+                    sub_total: item.total,
                     tax: item.totalTax,
                     tableNo: item.order.tableNo,
                     type: item.order.type,

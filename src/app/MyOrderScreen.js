@@ -63,7 +63,6 @@ const MyOrderScreen = ({ route, orders, transactionsCancelled, transactionsAccep
     }
 
     const handleAcceptScrolldown = () => {
-        console.log("Hello")
     }
 
 
