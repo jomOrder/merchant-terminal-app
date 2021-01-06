@@ -50,9 +50,9 @@ export default {
     }
   },
 
-  cancelTransaction: async (branchID, transactionID) => {
+  cancelTransaction: async (branch_key, transactionID) => {
     try {
-      return API.post(`/transaction/merchant/branch/status?branchID${branchID}&transactionID=${transactionID}&status=${2}`);
+      return API.post(`/transaction/merchant/branch/status?status=2&branchID=${branch_key}&transactionID=${transactionID}`);
 
     } catch (e) {
       console.log(e.message)

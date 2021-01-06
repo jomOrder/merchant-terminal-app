@@ -132,14 +132,14 @@ const ViewOrderDetailsScreen = ({ route, navigation, accepted, canceled, acceptO
     const cancelOrder = async () => {
         actionSheetRef.current?.setModalVisible(false)
         const branch_key = await AsyncStorage.getItem('branch_key');
+        cancelOrderTransaction(branch_key, transactionID);
         setSpinner(true);
         setMessage("Order has been cancelled")
         setVisible(true);
         setTimeout(() => {
             setSpinner(false);
-            navigation.navigate('Tab', { screen: 'Orders' });
-            cancelOrderTransaction(branch_key, transactionID);
-        }, 1000);
+            navigation.goBack();
+        }, 1500);
     }
 
     const handlePrintReceipt = async () => {
@@ -227,14 +227,14 @@ const ViewOrderDetailsScreen = ({ route, navigation, accepted, canceled, acceptO
     useEffect(() => {
         if (!mounted.current) {
             // do componentDidMount logic
-            handleDeviceEmitter();
+            // handleDeviceEmitter();
             mounted.current = true;
         } else {
             // if(accepted.length > 0) updateBranchBalance()
-            return () => {
-                //BackHandler Remove
-                DeviceEventEmitter.removeAllListeners();
-            }
+            // return () => {
+            //     //BackHandler Remove
+            //     DeviceEventEmitter.removeAllListeners();
+            // }
         }
     }, [accepted.length, canceled.length, items.length, printerStatus]);
 
@@ -345,7 +345,7 @@ const ViewOrderDetailsScreen = ({ route, navigation, accepted, canceled, acceptO
                             legacyImplementation={false}
                             data={items}
                             renderItem={item => renderOrderItem(item)}
-                            keyExtractor={item => item.id.toString(2)}
+                            keyExtractor={item => item.name.toString(2)}
                         />
                     </View>
                 </View>

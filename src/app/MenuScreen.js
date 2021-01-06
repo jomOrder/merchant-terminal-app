@@ -130,6 +130,7 @@ const MenuScreen = ({ navigation, viewBranchCategory, categories }) => {
                 setLoading(false)
             }, 400)
             mounted.current = true;
+            console.log("categories:", categories)
         } else {
             // do componentDidUpdate logic
         }
@@ -159,7 +160,7 @@ const MenuScreen = ({ navigation, viewBranchCategory, categories }) => {
                     legacyImplementation={false}
                     data={categories}
                     renderItem={item => renderMenu(item)}
-                    keyExtractor={item => item.id.toString(2)}
+                    keyExtractor={item => item.id.toString()}
                 />
             </SafeAreaView>
         </SafeAreaView>
