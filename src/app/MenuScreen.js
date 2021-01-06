@@ -130,7 +130,6 @@ const MenuScreen = ({ navigation, viewBranchCategory, categories }) => {
                 setLoading(false)
             }, 400)
             mounted.current = true;
-            console.log("categories:", categories)
         } else {
             // do componentDidUpdate logic
         }
